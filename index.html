@@ -1947,7 +1947,9 @@
     const ok = document.getElementById('modalOk');
     ok.textContent = opts.okText || '确定';
     ok.className = opts.danger ? 'btn danger' : 'btn primary';
-    document.getElementById('modalCancel').hidden = !!opts.hideCancel;
+    const cancel = document.getElementById('modalCancel');
+    cancel.hidden = !!opts.hideCancel;
+    cancel.textContent = opts.cancelText || '取消';
     document.getElementById('modal').hidden = false;
     const input = document.querySelector('#modalBody input, #modalBody textarea, #modalBody select');
     if (input) setTimeout(function () { input.focus(); }, 30);
@@ -2230,19 +2232,7 @@
       catch (e) { setCloudStatus(cloudErr(e)); toast(cloudStatus); }
       return;
     }
-    if (act === 'cloud-use') {
-      const ans = await openModal({
-        title: '填入同步码',
-        text: '把已经开启云端同步的设备上复制的同步码粘贴到这里。',
-        html: '<textarea id="cloud-code" class="code" placeholder="hcz1. 开头的同步码"></textarea>',
-        okText: '绑定'
-      });
-      if (!ans) return;
-      const raw = (document.getElementById('cloud-code') || {}).value || '';
-      try { await useCloudCode(raw); }
-      catch (e) { setCloudStatus(cloudErr(e)); toast(cloudStatus); }
-      return;
-    }
+    if (act === 'cloud-use') { await askCloudCode(); return; }
     if (act === 'cloud-copy') {
       const cfg = cloudCfg();
       if (!cfg) return toast('还没有开启云端同步');
@@ -2578,6 +2568,25 @@
     try { await navigator.clipboard.writeText(code); toast('已复制同步码'); }
     catch (e) { toast('请手动复制同步码'); }
   }
+  async function askCloudCode() {
+    const ans = await openModal({
+      title: '填写同步码',
+      text: '这台设备还没有同步码。填入后会自动取用云端较新的数据。',
+      html: '<textarea id="cloud-code" class="code" placeholder="hcz1. 开头的同步码"></textarea>',
+      okText: '绑定',
+      cancelText: '稍后再说'
+    });
+    if (!ans) return;
+    const raw = (document.getElementById('cloud-code') || {}).value || '';
+    try {
+      await useCloudCode(raw);
+      if (!cloudCfg()) return askCloudCode();
+    } catch (e) {
+      setCloudStatus(cloudErr(e));
+      toast(cloudStatus);
+      return askCloudCode();
+    }
+  }
   async function useCloudCode(raw) {
     const cfg = parseSyncCode(raw);
     const remote = await fetchRemote(cfg);
@@ -2832,7 +2841,7 @@
 
   window.HCZ = { addMonths: addMonths, expireOf: expireOf, issueOf: issueOf, cardStatus: cardStatus, parseTable: parseTable, buildPolicyRows: buildPolicyRows, buildDetailRows: buildDetailRows, sheetXml: sheetXml, parseSheetXml: parseSheetXml, makeXlsx: makeXlsx, readXlsxAll: readXlsxAll, state: function () { return state; } };
   async function initCloud() {
-    if (!cloudCfg()) return;
+    if (!cloudCfg()) { askCloudCode(); return; }
     try { await reconcileCloud(); }
     catch (e) { setCloudStatus(cloudErr(e)); render(); }
   }

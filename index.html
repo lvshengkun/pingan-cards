@@ -618,7 +618,7 @@
   }
   function countLine(t) {
     const left = t.usable + t.wait;
-    return '可用 ' + t.usable + ' / ' + t.all + (t.expired ? ' · 过期 ' + t.expired : '') + ' · 剩余 ' + left + ' 张';
+    return '可用 ' + t.usable + ' / ' + t.all + (t.expired ? '·过期 ' + t.expired : '') + '·剩余 ' + left + ' 张';
   }
   function projectStatus(p, all) {
     const t = tally(p, all);
@@ -660,8 +660,8 @@
       const view = ids.length ? viewOf(p, ids[0]) : p;
       const step = actualStep(view, g);
       return g.name + ' ' + actualQty(view, g) + '张' + (step > 1 ? '(每月' + step + ')' : '');
-    }).join(' · ');
-    return note ? body + ' · ' + note : body;
+    }).join('·');
+    return note ? body + '·' + note : body;
   }
   function remainCount(p, g, today) {
     let n = 0;
@@ -859,11 +859,11 @@
     const search = active === 'home'
       ? '<input id="q" class="top-search" type="search" placeholder="搜索套餐、礼包" aria-label="搜索套餐、礼包" value="' + esc(ui.q) + '">'
       : '';
-    return '<header class="top"><div class="top-row"><div class="brand"><div class="logo">券</div><div><h1>card</h1><p>' + (cloudCfg() ? '网页版 · 已开云端同步' : '网页版 · 数据只在本机') + '</p></div></div>' +
+    return '<header class="top"><div class="top-row"><div class="brand"><div class="logo">券</div><div><h1>card</h1><p>' + (cloudCfg() ? '网页版·已开云端同步' : '网页版·数据只在本机') + '</p></div></div>' +
       '<div class="top-side">' + search +
       '<nav class="nav">' +
-      '<button type="button" class="' + (active === 'home' ? 'on' : '') + '" data-act="go" data-hash="#/">保单·' + (state.projects || []).length + '</button>' +
-      '<button type="button" class="' + (active === 'accounts' ? 'on' : '') + '" data-act="go" data-hash="#/accounts">账号·' + (state.accounts || []).length + '</button>' +
+      '<button type="button" class="' + (active === 'home' ? 'on' : '') + '" data-act="go" data-hash="#/">保单' + (state.projects || []).length + '</button>' +
+      '<button type="button" class="' + (active === 'accounts' ? 'on' : '') + '" data-act="go" data-hash="#/accounts">账号' + (state.accounts || []).length + '</button>' +
       '<button type="button" class="' + (active === 'data' ? 'on' : '') + '" data-act="go" data-hash="#/data">数据</button>' +
       '<button type="button" data-act="theme">' + (document.documentElement.getAttribute('data-theme') === 'dark' ? '白天' : '黑夜') + '</button>' +
       '</nav></div></div>';
@@ -885,7 +885,7 @@
     const chips = '<button type="button" class="chip' + (state.currentAccountId === 'all' ? ' on' : '') + '" data-act="set-acc" data-id="all">全部账号</button>' +
       state.accounts.map(function (a) {
         const n = state.projects.filter(function (p) { return accountIdsOf(p).indexOf(a.id) >= 0; }).length;
-        return '<button type="button" class="chip' + (state.currentAccountId === a.id ? ' on' : '') + '" data-act="set-acc" data-id="' + esc(a.id) + '">' + esc(a.name) + ' · ' + n + '</button>';
+        return '<button type="button" class="chip' + (state.currentAccountId === a.id ? ' on' : '') + '" data-act="set-acc" data-id="' + esc(a.id) + '">' + esc(a.name) + '·' + n + '</button>';
       }).join('');
     return headerHTML('home') + statButtons(st) + moneyBar() +
       '<div class="chips">' + chips + '</div>' +
@@ -904,7 +904,7 @@
       const m = projectMoney(p);
       return '<article class="card policy"><div class="policy-top"><button type="button" class="name-btn" data-act="open" data-id="' + esc(p.id) + '">' + esc(p.name + profitRateLabel(m.cost, m.cash)) + '</button>' + pill(projectStatus(p)) + '</div>' +
         '<p class="muted sum">' + esc(seriesSummary(p)) + (p.note ? '<br>' + esc(p.note) : '') + '</p>' + priceLine(m) +
-        '<p class="muted policy-meta">' + countLine(t) + (showAcc ? ' · ' + esc(accountCopiesLabel(p) || accountLabel(p)) : '') + '<br>' + esc(nearestLine(p) || '暂无可用券') + '</p>' +
+        '<p class="muted policy-meta">' + countLine(t) + (showAcc ? '·' + esc(accountCopiesLabel(p) || accountLabel(p)) : '') + '<br>' + esc(nearestLine(p) || '暂无可用券') + '</p>' +
         '<div class="ops"><button type="button" class="btn small primary" data-act="open" data-id="' + esc(p.id) + '">详情</button><button type="button" class="btn small ghost" data-act="edit" data-id="' + esc(p.id) + '">编辑</button><button type="button" class="btn small danger" data-act="del-project" data-id="' + esc(p.id) + '">删除</button></div></article>';
     }).join('') + '</div>';
   }
@@ -914,7 +914,7 @@
     const ids = accountIdsOf(p);
     const gifts = ids.map(function (id) {
       const blocks = (p.series || []).map(function (g, gi) { return giftBlock(p, g, gi, id); }).join('');
-      return (ids.length > 1 ? '<h3 class="acc-head">' + esc(accountName(id)) + ' · ' + copiesOf(p, id) + ' 份</h3>' : '') + blocks;
+      return (ids.length > 1 ? '<h3 class="acc-head">' + esc(accountName(id)) + '·' + copiesOf(p, id) + ' 份</h3>' : '') + blocks;
     }).join('');
     return headerHTML('home') + '</header><div class="section"><button type="button" class="back" data-act="go" data-hash="#/">← 返回保单</button>' +
       '<div class="card pad"><div class="page-title"><div><h2>' + esc(p.name) + '</h2><div class="meta">' + pill(projectStatus(p, true)) +
@@ -935,7 +935,7 @@
     const copies = copiesOf(view);
     const usedUp = slot.used >= total;
     const cur = Math.min(total, slot.used + 1);
-    const now = usedUp ? '这一种已全部用完' : ('现在：第 ' + cur + ' 张 · 发放 ' + (issueOf(slot, cur, view) || '—') + ' · 到期 ' + (expireOf(view, slot, cur) || '—'));
+    const now = usedUp ? '这一种已全部用完' : ('现在：第 ' + cur + ' 张·发放 ' + (issueOf(slot, cur, view) || '—') + '·到期 ' + (expireOf(view, slot, cur) || '—'));
     let desk = '<table class="only-d"><thead><tr><th>序号</th><th>状态</th><th>发放日</th><th>到期日</th><th>剩余</th><th>使用日</th><th></th></tr></thead><tbody>';
     let mob = '<div class="blocks">';
     const accAttr = accountId ? ' data-acc="' + esc(accountId) + '"' : '';
@@ -950,14 +950,14 @@
         ((isManualIssue(slot, k) || isManualExpire(slot, k)) ? '<button type="button" class="btn small ghost" data-act="clear-card" data-id="' + esc(p.id) + '" data-gi="' + gi + '" data-k="' + k + '"' + accAttr + '>恢复自动</button>' : '') +
         '</div>';
       desk += '<tr><td>第' + k + '张</td><td>' + pill(st) + '</td><td>' + esc(issue) + (isManualIssue(slot, k) ? ' <span class="muted">手动</span>' : '') + '</td><td>' + esc(exp) + (isManualExpire(slot, k) ? ' <span class="muted">手动</span>' : '') + '</td><td>' + esc(leftText(st, expireOf(view, slot, k))) + '</td><td>' + esc(log ? log.date : '—') + '</td><td>' + ops + '</td></tr>';
-      mob += '<div class="coupon"><div class="row"><b>第 ' + k + ' 张</b>' + pill(st) + '</div><p class="muted">发放 ' + esc(issue) + (isManualIssue(slot, k) ? '（手动）' : '（自动）') + '<br>到期 ' + esc(exp) + (isManualExpire(slot, k) ? '（手动）' : '（自动）') + '<br>' + esc(leftText(st, expireOf(view, slot, k))) + (log ? ' · 使用于 ' + esc(log.date) : '') + (manual ? '' : '') + '</p>' + ops + '</div>';
+      mob += '<div class="coupon"><div class="row"><b>第 ' + k + ' 张</b>' + pill(st) + '</div><p class="muted">发放 ' + esc(issue) + (isManualIssue(slot, k) ? '（手动）' : '（自动）') + '<br>到期 ' + esc(exp) + (isManualExpire(slot, k) ? '（手动）' : '（自动）') + '<br>' + esc(leftText(st, expireOf(view, slot, k))) + (log ? '·使用于 ' + esc(log.date) : '') + (manual ? '' : '') + '</p>' + ops + '</div>';
     }
     desk += '</tbody></table>';
     mob += '</div>';
     const cashN = remainCount(view, slot);
-    const who = accountId ? accountName(accountId) + ' · ' : '';
-    const scale = copies > 1 ? ('一份每月 ' + monthStep(g) + ' 张、共 ' + g.qty + ' 张 · ' + copies + ' 份 · 实际每月 ' + step + ' 张、共 ' + total + ' 张') : ('共 ' + total + ' 张 · 每月 ' + step + ' 张');
-    return '<section class="gift"><div class="gift-head"><div><h2 style="margin:0;font-size:16px">' + esc(g.name) + '</h2><p class="muted">' + who + scale + ' · 已用 ' + slot.used + ' · 还可兑现 ' + cashN + ' 张<br>单张售价 ' + yuan(g.price) + ' · 剩余可变现 ' + yuan(remainCash(view, slot)) + '<br>' + esc(now) + '</p></div>' +
+    const who = accountId ? accountName(accountId) + '·' : '';
+    const scale = copies > 1 ? ('一份每月 ' + monthStep(g) + ' 张、共 ' + g.qty + ' 张·' + copies + ' 份·实际每月 ' + step + ' 张、共 ' + total + ' 张') : ('共 ' + total + ' 张·每月 ' + step + ' 张');
+    return '<section class="gift"><div class="gift-head"><div><h2 style="margin:0;font-size:16px">' + esc(g.name) + '</h2><p class="muted">' + who + scale + '·已用 ' + slot.used + '·还可兑现 ' + cashN + ' 张<br>单张售价 ' + yuan(g.price) + '·剩余可变现 ' + yuan(remainCash(view, slot)) + '<br>' + esc(now) + '</p></div>' +
       '<div class="ops"><label class="field">当前发放<input type="date" data-act="anchor" data-id="' + esc(p.id) + '" data-gi="' + gi + '"' + accAttr + ' value="' + esc(slot.anchor || '') + '"></label>' +
       '<button type="button" class="btn primary" data-act="use" data-id="' + esc(p.id) + '" data-gi="' + gi + '"' + accAttr + (usedUp ? ' disabled' : '') + '>使用这一张</button>' +
       '<button type="button" class="btn ghost" data-act="undo" data-id="' + esc(p.id) + '" data-gi="' + gi + '"' + accAttr + (slot.used <= 0 ? ' disabled' : '') + '>撤销上一张</button></div></div>' +
@@ -1005,7 +1005,7 @@
     const rows = state.accounts.map(function (a) {
       const n = state.projects.filter(function (p) { return accountIdsOf(p).indexOf(a.id) >= 0; }).length;
       const cur = state.currentAccountId === a.id ? ' <span class="pill ok">当前</span>' : '';
-      return '<div class="gift"><div class="gift-head"><div><b>' + esc(a.name) + '</b>' + cur + '<p class="muted">' + n + ' 个保单' + (a.note ? ' · ' + esc(a.note) : '') + '</p></div>' +
+      return '<div class="gift"><div class="gift-head"><div><b>' + esc(a.name) + '</b>' + cur + '<p class="muted">' + n + ' 个保单' + (a.note ? '·' + esc(a.note) : '') + '</p></div>' +
         '<div class="ops"><button type="button" class="btn small primary" data-act="set-acc" data-id="' + esc(a.id) + '">切换</button>' +
         '<button type="button" class="btn small ghost" data-act="acc-rename" data-id="' + esc(a.id) + '">改名</button>' +
         '<button type="button" class="btn small danger" data-act="acc-del" data-id="' + esc(a.id) + '">删除</button></div></div>' +
@@ -1018,7 +1018,7 @@
   function pageData() {
     const cards = state.projects.reduce(function (n, p) { return n + tally(p, true).all; }, 0);
     return headerHTML('data') + '</header><div class="data-grid section">' +
-      '<section class="card pad"><h2>本机</h2><p>' + state.accounts.length + ' 个账号 · ' + state.projects.length + ' 个保单 · ' + cards + ' 张卡券</p><p class="muted">最近保存 ' + esc(state.updatedAt || '') + '</p>' +
+      '<section class="card pad"><h2>本机</h2><p>' + state.accounts.length + ' 个账号·' + state.projects.length + ' 个保单·' + cards + ' 张卡券</p><p class="muted">最近保存 ' + esc(state.updatedAt || '') + '</p>' +
       '<div class="ops"><button type="button" class="btn ghost" data-act="sample">填入示例</button><button type="button" class="btn danger" data-act="clear-all">清空全部数据</button></div></section>' +
       '<section class="card pad"><h2>云端同步</h2><p class="muted">每次保存都会上传到你自己的 GitHub 私密 Gist。其他手机或电脑打开本页并填入同一个同步码，会自动采用较新的一份。同步码里有访问令牌，只放在自己的设备上。</p>' +
       '<p><b id="cloud-status">' + esc(cloudStatus) + '</b></p>' +
@@ -1150,7 +1150,7 @@
     if (!list.length) return '';
     return '<details class="catalog"><summary>从已填过的套餐填入</summary><div class="tpl-box">' + list.map(function (t) {
       return '<button type="button" class="tpl" data-act="fill-tpl" data-id="' + esc(t.id) + '"><b>' + esc(t.name) + '</b><small>' +
-        esc(t.summary) + ' · 成本 ' + yuan(t.cost) + ' · 可变现 ' + yuan(t.cash) + ' · ' + esc(t.accounts.join('、')) + '</small></button>';
+        esc(t.summary) + '·成本 ' + yuan(t.cost) + '·可变现 ' + yuan(t.cash) + '·' + esc(t.accounts.join('、')) + '</small></button>';
     }).join('') + '</div></details>';
   }
   function fillFromTemplate(id) {

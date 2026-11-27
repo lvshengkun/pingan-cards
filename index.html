@@ -1,0 +1,2857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b6b43">
+<title>card</title>
+<script>
+  (function () {
+    var saved = localStorage.getItem('hcz-theme');
+    var theme = saved === 'light' || saved === 'dark' ? saved : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+<style>
+  :root {
+    color-scheme: light;
+    --green: #0b6b43;
+    --green-2: #128a57;
+    --ink: #1c2b24;
+    --sub: #5d6f67;
+    --line: #e4eee8;
+    --bg: #f3f6f4;
+    --card: #fff;
+    --surface: #fff;
+    --input: #fff;
+    --red: #d63b32;
+    --orange: #a15c00;
+    --shadow: 0 1px 2px rgba(16,40,28,.05), 0 10px 28px rgba(16,40,28,.05);
+    --ghost: #eef6f1;
+    --help: #f6fbf8;
+    --coupon: #fbfefc;
+    --chip-on: #e7f6ee;
+    --chip-line: #b7e4cb;
+    --accent-ink: #0b6b43;
+    --ok-bg: #e5f6ec;
+    --ok-ink: #0b7a43;
+    --soon-bg: #fff4e0;
+    --today-bg: #ffeceb;
+    --today-ink: #c6281e;
+    --expired-bg: #fde8e6;
+    --wait-bg: #eef1f3;
+    --wait-ink: #5c6b73;
+    --banner-bg: #fdeceb;
+    --banner-ink: #8d201b;
+    --toast-bg: #173127;
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --ink: #e8f3ed;
+    --sub: #a3b8ae;
+    --line: #2c4037;
+    --bg: #101816;
+    --card: #1b2823;
+    --surface: #24332d;
+    --input: #121c18;
+    --red: #ff9b94;
+    --orange: #f2b85c;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 12px 32px rgba(0,0,0,.35);
+    --ghost: #24362e;
+    --help: #15241e;
+    --coupon: #15211c;
+    --chip-on: #1d3b2e;
+    --chip-line: #2f6a4c;
+    --accent-ink: #8ee0b2;
+    --ok-bg: #1a3d2c;
+    --ok-ink: #8ee0b2;
+    --soon-bg: #3a2d14;
+    --today-bg: #3d221f;
+    --today-ink: #ffb0a8;
+    --expired-bg: #3d221f;
+    --wait-bg: #24302c;
+    --wait-ink: #c5d2cb;
+    --banner-bg: #3d221f;
+    --banner-ink: #ffb4ae;
+    --toast-bg: #0c1411;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 16px 16px 48px; }
+  .top {
+    background: #000;
+    color: #fff;
+    border-radius: 18px;
+    padding: 16px 16px 14px;
+    box-shadow: var(--shadow);
+  }
+  .top-row { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
+  .brand { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .logo {
+    width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.16);
+    display: grid; place-items: center; font-weight: 700; flex: none;
+  }
+  .brand h1 { font-size: 18px; margin: 0; font-weight: 700; }
+  .brand p { margin: 2px 0 0; font-size: 12px; opacity: .85; }
+  .top-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; min-width: 0; }
+  .top-search {
+    width: 240px; max-width: 100%; border: 0; border-radius: 999px; padding: 8px 14px;
+    background: rgba(255,255,255,.16); color: #fff; outline: none;
+  }
+  .top-search::placeholder { color: rgba(255,255,255,.72); }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .nav button, .btn {
+    border: 0; border-radius: 999px; padding: 8px 14px; background: var(--surface); color: var(--accent-ink);
+    font-weight: 650;
+  }
+  .nav button { background: rgba(255,255,255,.16); color: #fff; }
+  .nav button.on { background: #fff; color: var(--green); }
+  .btn.primary { background: var(--green); color: #fff; }
+  .btn.ghost { background: var(--ghost); color: var(--accent-ink); }
+  .btn.danger { background: var(--expired-bg); color: var(--red); }
+  .btn.small { padding: 6px 10px; font-size: 13px; font-weight: 600; }
+  .btn.block { width: 100%; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .stat {
+    text-align: left; background: rgba(255,255,255,.14); color: #fff; border-radius: 14px;
+    padding: 10px 12px; border: 0; font: inherit;
+  }
+  .stat b { display: block; font-size: 26px; line-height: 1.1; }
+  .stat span { font-size: 12px; opacity: .9; }
+  .stat em { font-style: normal; display: block; font-size: 11px; opacity: .75; }
+  .stat.on { background: #fff; color: var(--green); }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0 4px; }
+  .chip, .filters button {
+    border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px;
+    white-space: nowrap; color: var(--sub);
+  }
+  .chip.on, .filters button.on { background: var(--chip-on); color: var(--accent-ink); border-color: var(--chip-line); font-weight: 700; }
+  .toolbar { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin: 8px 0 12px; flex-wrap: wrap; }
+  .toolbar input[type="search"] {
+    flex: 1; min-width: 180px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--input); color: var(--ink);
+  }
+  .filters { display: none; }
+  .card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; color: var(--sub); font-weight: 650; }
+  tr:last-child td { border-bottom: 0; }
+  .name-btn { background: none; border: 0; padding: 0; font-weight: 700; color: var(--ink); text-align: left; word-break: break-word; }
+  .g-id { display: none; }
+  td { word-break: break-word; }
+  .muted { color: var(--sub); font-size: 13px; }
+  .pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 8px; font-size: 12px; font-weight: 700; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok-ink); }
+  .pill.soon { background: var(--soon-bg); color: var(--orange); }
+  .pill.today { background: var(--today-bg); color: var(--today-ink); }
+  .pill.expired { background: var(--expired-bg); color: var(--red); }
+  .pill.wait, .pill.used, .pill.usedup { background: var(--wait-bg); color: var(--wait-ink); }
+  .ops { display: flex; gap: 6px; flex-wrap: wrap; }
+  .empty { padding: 36px 16px; text-align: center; }
+  .empty h2 { margin: 0 0 6px; font-size: 18px; }
+  .m-list { display: flex; flex-direction: column; gap: 10px; }
+  .policy { padding: 16px 18px; }
+  .policy-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+  .policy .name-btn { font-size: 16px; }
+  .policy .sum, .policy .policy-meta { margin: 6px 0 0; }
+  .policy .price-line { margin-top: 12px; }
+  .policy .ops { margin-top: 12px; justify-content: flex-end; }
+  @media (min-width: 861px) {
+    .wrap { max-width: 1200px; }
+    .chips { flex-wrap: wrap; overflow: visible; }
+    .policy {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(420px, 46%);
+      column-gap: 20px;
+      row-gap: 6px;
+      align-items: center;
+    }
+    .policy-top { grid-column: 1; grid-row: 1; }
+    .policy .sum { grid-column: 1; grid-row: 2; margin: 0; }
+    .policy .policy-meta { grid-column: 1; grid-row: 3; margin: 0; }
+    .policy .price-line { grid-column: 2; grid-row: 1 / span 2; margin: 0; align-self: center; }
+    .policy .ops { grid-column: 2; grid-row: 3; margin: 0; }
+  }
+  .section { margin-top: 14px; }
+  .section h2 { font-size: 16px; margin: 0 0 8px; }
+  .gift {
+    padding: 14px; border-top: 1px solid var(--line);
+  }
+  .gift:first-child { border-top: 0; }
+  .gift-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+  .kv { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--sub); }
+  .field input, .field select, .field textarea, .inline input, .inline select, textarea.code {
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--input); color: var(--ink); width: 100%;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .gift-edit { display: grid; grid-template-columns: minmax(140px, 1.6fr) 84px 84px 108px auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .gift-edit-head { color: var(--sub); font-size: 12px; margin-bottom: 0; }
+  .card.only-d { overflow-x: auto; }
+  .money-card { margin-top: 12px; padding: 12px 14px; }
+  .money-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .money-head .btn { flex: none; }
+  .money-label { font-size: 13px; font-weight: 700; color: var(--sub); }
+  .money, .price-line { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .money { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .money div, .price-line span { background: var(--help); border-radius: 12px; padding: 8px 10px; }
+  .money b, .price-line b { display: block; font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .money span, .price-line em { display: block; font-style: normal; font-size: 12px; color: var(--sub); }
+  .money .down b, .price-line .down b, td.down { color: var(--red); }
+  .help { background: var(--help); border-radius: 12px; padding: 10px 12px; color: var(--sub); font-size: 13px; }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px; }
+  .checks label { display: inline-flex; align-items: center; gap: 6px; width: auto; background: var(--help); border-radius: 999px; padding: 6px 12px; color: var(--ink); }
+  .checks input { width: auto; }
+  .acc-row { display: inline-flex; align-items: center; gap: 8px; background: var(--help); border-radius: 999px; padding: 4px 10px 4px 12px; color: var(--ink); }
+  .checks .acc-row label { background: none; padding: 0; border-radius: 0; }
+  .acc-row .acc-copies { width: 64px; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; background: var(--input); color: var(--ink); }
+  .acc-row .acc-copies:disabled { opacity: .4; }
+  .acc-head { margin: 16px 0 0; font-size: 15px; }
+  .inline { display: flex; gap: 8px; align-items: center; }
+  .inline input { flex: 1; min-width: 0; width: auto; }
+  .inline .btn { flex: none; white-space: nowrap; }
+  .gift-edit input {
+    width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 12px; background: var(--input); color: var(--ink);
+  }
+  .catalog { background: var(--help); border-radius: 12px; padding: 8px 12px; }
+  .catalog summary { cursor: pointer; font-weight: 700; color: var(--ink); }
+  .catalog .tpl-box { margin-top: 8px; }
+  .tpl-box { display: flex; flex-direction: column; gap: 8px; }
+  .tpl {
+    display: block; width: 100%; text-align: left; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); border-radius: 12px; padding: 8px 12px; font-weight: 650;
+  }
+  .tpl small { display: block; margin-top: 2px; font-weight: 500; color: var(--sub); font-size: 12px; }
+  .tpl:hover { border-color: var(--chip-line); background: var(--chip-on); }
+  .back { background: none; border: 0; color: var(--accent-ink); font-weight: 700; padding: 0 0 8px; }
+  .page-title { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .page-title h2 { margin: 0; font-size: 22px; }
+  .meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .blocks { display: none; }
+  .coupon {
+    border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-top: 8px; background: var(--coupon);
+  }
+  .coupon .row { display: flex; justify-content: space-between; gap: 8px; }
+  .warn { color: var(--red); font-size: 13px; }
+  .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pad { padding: 16px; }
+  textarea.code { min-height: 120px; }
+  .preview { overflow: auto; max-height: 240px; border: 1px solid var(--line); border-radius: 12px; }
+  .preview table { min-width: 640px; }
+  .modal { position: fixed; inset: 0; z-index: 40; }
+  .modal[hidden] { display: none !important; }
+  .mask { position: absolute; inset: 0; background: rgba(12, 28, 22, .45); }
+  .dialog {
+    position: relative; z-index: 1; width: min(760px, calc(100% - 24px)); max-height: min(88vh, 860px);
+    overflow: auto; margin: 6vh auto; background: var(--card); color: var(--ink); border-radius: 18px; padding: 18px; box-shadow: var(--shadow);
+  }
+  .dialog h3 { margin: 0 0 6px; }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+    background: var(--toast-bg); color: #fff; padding: 10px 16px; border-radius: 999px; z-index: 50;
+    max-width: calc(100% - 24px);
+  }
+  #toast[hidden] { display: none; }
+  .banner { background: var(--banner-bg); color: var(--banner-ink); padding: 8px 12px; border-radius: 10px; margin-bottom: 10px; }
+  @media (max-width: 860px) {
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); overflow: visible; }
+    .stat { min-width: 0; }
+    .stat b { font-size: 22px; }
+    .only-d { display: none !important; }
+    .blocks { display: block; }
+    .policy { display: block; }
+    .grid-2, .data-grid, .gift-edit { grid-template-columns: 1fr; }
+    .gift-edit-head { display: none; }
+    .price-line { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .top-row { flex-direction: column; }
+    .top-side { align-items: stretch; width: 100%; }
+    .top-search { width: 100%; }
+    .nav { justify-content: flex-start; }
+    .dialog { width: 100%; max-height: 100%; height: 100%; margin: 0; border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="modal" class="modal" hidden>
+  <div class="mask" data-act="modal-cancel"></div>
+  <div class="dialog">
+    <h3 id="modalTitle"></h3>
+    <p id="modalText" class="muted"></p>
+    <div id="modalBody"></div>
+    <div class="dialog-actions">
+      <button type="button" class="btn ghost" id="modalCancel">取消</button>
+      <button type="button" class="btn primary" id="modalOk">确定</button>
+    </div>
+  </div>
+</div>
+<div id="toast" hidden></div>
+<input id="file" type="file" accept=".xlsx,.csv,.txt,.json,application/json" hidden>
+<script>
+(function () {
+  const KEY = 'hcz-cards-v1';
+  const STATUS = {
+    ok: ['可用中', 'ok'], usable: ['可用', 'ok'], soon: ['临期', 'soon'], today: ['今天到期', 'today'],
+    expired: ['已过期', 'expired'], wait: ['未发放', 'wait'], used: ['已使用', 'used'],
+    usedup: ['已用完', 'usedup'], empty: ['未填写', 'wait']
+  };
+  let seq = 1;
+  let state = null;
+  let editDraft = null;
+  let ui = { filter: 'all', q: '' };
+  let syncHandle = null;
+  let syncStatus = '未绑定同步文件';
+  let cloudStatus = '未开启云端同步';
+  let modalCb = null;
+  let toastTimer = 0;
+  let testErrs = [];
+  let scrollHome = false;
+
+  function uid(prefix) {
+    seq += 1;
+    return prefix + Date.now().toString(36) + seq.toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function parseDate(s) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+    if (!m) return null;
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+  function fmtDate(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function todayStr() { return fmtDate(new Date()); }
+  function addMonths(s, n) {
+    const d = parseDate(s);
+    if (!d || (!n && n !== 0)) return '';
+    const day = d.getDate();
+    d.setDate(1);
+    d.setMonth(d.getMonth() + n);
+    const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(day, last));
+    return fmtDate(d);
+  }
+  function addDays(s, n) {
+    const d = parseDate(s);
+    if (!d) return '';
+    d.setDate(d.getDate() + n);
+    return fmtDate(d);
+  }
+  function daysBetween(from, to) {
+    const a = parseDate(from), b = parseDate(to);
+    if (!a || !b) return null;
+    return Math.round((b - a) / 86400000);
+  }
+  function daysLeft(exp, today) {
+    if (!exp) return null;
+    return daysBetween(today || todayStr(), exp);
+  }
+  function normalizeDate(s) {
+    if (s == null) return '';
+    s = String(s).trim();
+    if (!s) return '';
+    if (/^\d+(\.\d+)?$/.test(s)) {
+      const n = Math.round(Number(s));
+      if (n > 20000 && n < 80000) {
+        const d = new Date(Date.UTC(1899, 11, 30) + n * 86400000);
+        return d.toISOString().slice(0, 10);
+      }
+    }
+    s = s.replace('T', ' ').trim().replace(/\s+.*/, '');
+    s = s.replace(/[./]/g, '-').replace(/年/g, '-').replace(/月/g, '-').replace(/日/g, '');
+    s = s.replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (!m) return '';
+    const y = Number(m[1]), mo = Number(m[2]), da = Number(m[3]);
+    const d = new Date(y, mo - 1, da);
+    if (d.getFullYear() !== y || d.getMonth() !== mo - 1 || d.getDate() !== da) return '';
+    return fmtDate(d);
+  }
+  function roundMoney(n) {
+    const x = Number(n);
+    if (!Number.isFinite(x)) return 0;
+    return Math.round(x * 100) / 100;
+  }
+  function moneyNum(v) {
+    const n = typeof v === 'number' ? v : parseFloat(String(v == null ? '' : v).replace(/[¥,\s]/g, ''));
+    if (!Number.isFinite(n) || n < 0) return 0;
+    return roundMoney(n);
+  }
+  function yuan(n) {
+    const x = roundMoney(n);
+    return (x < 0 ? '-' : '') + '¥' + Math.abs(x).toFixed(2);
+  }
+  function monthStep(gift) {
+    const n = gift && gift.perMonth | 0;
+    return n > 0 ? n : 1;
+  }
+  function copiesOf(project, accountId) {
+    if (!project) return 1;
+    const map = project.accountCopies;
+    if (accountId && map && (map[accountId] | 0) > 0) return map[accountId] | 0;
+    const n = project.copies | 0;
+    return n > 0 ? n : 1;
+  }
+  function scopeAccountIds(project) {
+    const ids = accountIdsOf(project);
+    if (!ids.length) return [];
+    if (state && state.currentAccountId && state.currentAccountId !== 'all' && ids.indexOf(state.currentAccountId) >= 0) return [state.currentAccountId];
+    return ids;
+  }
+  function scopedCopyCount(project) {
+    const ids = scopeAccountIds(project);
+    if (!ids.length) return copiesOf(project);
+    let n = 0;
+    ids.forEach(function (id) { n += copiesOf(project, id); });
+    return n || 1;
+  }
+  function viewOf(project, accountId) {
+    return { validMonths: project.validMonths, copies: copiesOf(project, accountId), firstIssue: project.firstIssue, cost: project.cost, cash: project.cash };
+  }
+  function ensureHolder(gift, accountId, seedFromGift) {
+    gift.holders = gift.holders || {};
+    if (!gift.holders[accountId]) {
+      gift.holders[accountId] = seedFromGift
+        ? { used: gift.used | 0, anchor: gift.anchor || '', log: gift.log || [], issueOv: gift.issueOv || {}, expireOv: gift.expireOv || {} }
+        : { used: 0, anchor: gift.anchor || '', log: [], issueOv: {}, expireOv: {} };
+    }
+    const h = gift.holders[accountId];
+    h.log = Array.isArray(h.log) ? h.log : [];
+    h.issueOv = h.issueOv || {};
+    h.expireOv = h.expireOv || {};
+    h.qty = gift.qty;
+    h.perMonth = gift.perMonth;
+    h.price = gift.price;
+    h.name = gift.name;
+    return h;
+  }
+  function slotOf(gift, accountId) {
+    if (accountId && gift.holders && gift.holders[accountId]) return gift.holders[accountId];
+    return gift;
+  }
+  function mirrorPrimary(project, gift) {
+    const id = accountIdsOf(project)[0];
+    if (!id || !gift.holders || !gift.holders[id]) return gift;
+    const h = gift.holders[id];
+    gift.used = h.used | 0;
+    gift.anchor = h.anchor || '';
+    gift.log = h.log || [];
+    gift.issueOv = h.issueOv || {};
+    gift.expireOv = h.expireOv || {};
+    return gift;
+  }
+  function trimSlot(slot, total) {
+    slot.used = Math.max(0, Math.min(total, slot.used | 0));
+    slot.log = (slot.log || []).filter(function (x) { return x.k <= slot.used && x.k <= total; });
+    ['issueOv', 'expireOv'].forEach(function (field) {
+      slot[field] = slot[field] || {};
+      Object.keys(slot[field]).forEach(function (k) { if (Number(k) > total) delete slot[field][k]; });
+    });
+    return slot;
+  }
+  function accountCopiesLabel(project, ids) {
+    ids = ids && ids.length ? ids : accountIdsOf(project);
+    if (!ids.length) {
+      const n = copiesOf(project);
+      return n > 1 ? n + '份' : '';
+    }
+    if (ids.length === 1) {
+      const n = copiesOf(project, ids[0]);
+      return accountName(ids[0]) + (n > 1 ? '×' + n + '份' : '');
+    }
+    return ids.map(function (id) { return accountName(id) + '×' + copiesOf(project, id) + '份'; }).join('、');
+  }
+  function accountIdsOf(project) {
+    if (project && Array.isArray(project.accountIds) && project.accountIds.length) return project.accountIds.slice();
+    return project && project.accountId ? [project.accountId] : [];
+  }
+  function accountLabel(project) {
+    const names = accountIdsOf(project).map(accountName).filter(Boolean);
+    return names.length ? names.join('、') : '未分配';
+  }
+  function actualQty(project, gift, accountId) {
+    const copies = accountId ? copiesOf(project, accountId) : copiesOf(project);
+    return Math.max(1, (gift.qty | 0 || 1) * copies);
+  }
+  function actualStep(project, gift, accountId) {
+    const copies = accountId ? copiesOf(project, accountId) : copiesOf(project);
+    return Math.min(actualQty(project, gift, accountId), Math.max(1, monthStep(gift) * copies));
+  }
+  function trimGift(project, gift) {
+    const ids = accountIdsOf(project);
+    if (ids.length) {
+      const keep = {};
+      ids.forEach(function (id, i) {
+        const existed = gift.holders && gift.holders[id];
+        const h = ensureHolder(gift, id, !existed && i === 0);
+        trimSlot(h, actualQty(project, gift, id));
+        keep[id] = h;
+      });
+      gift.holders = keep;
+      return mirrorPrimary(project, gift);
+    }
+    trimSlot(gift, actualQty(project, gift));
+    return gift;
+  }
+  function blankGift(name, qty, used, anchor, perMonth, price) {
+    qty = Math.max(1, qty | 0 || 1);
+    used = Math.max(0, used | 0);
+    perMonth = Math.max(1, Math.min(qty, perMonth | 0 || 1));
+    return { gid: uid('g'), name: name || '', qty: qty, used: used, anchor: anchor || '', perMonth: perMonth, price: moneyNum(price), log: [], expireOv: {}, issueOv: {} };
+  }
+  function autoIssue(gift, k, project) {
+    if (k <= (gift.used | 0)) {
+      const hit = (gift.log || []).find(function (x) { return Number(x.k) === k; });
+      return hit && hit.issue ? hit.issue : '';
+    }
+    if (!gift.anchor) return '';
+    const step = project ? actualStep(project, gift) : monthStep(gift);
+    const into = (gift.used | 0) % step;
+    return addMonths(gift.anchor, Math.floor((into + (k - gift.used - 1)) / step));
+  }
+  function issueOf(gift, k, project) {
+    if (gift.issueOv && gift.issueOv[String(k)]) return gift.issueOv[String(k)];
+    return autoIssue(gift, k, project);
+  }
+  function expireOf(project, gift, k) {
+    if (gift.expireOv && gift.expireOv[String(k)]) return gift.expireOv[String(k)];
+    const issue = issueOf(gift, k, project);
+    if (!issue) return '';
+    return addDays(addMonths(issue, 1), -1);
+  }
+  function isManualIssue(g, k) { return !!(g.issueOv && g.issueOv[String(k)]); }
+  function isManualExpire(g, k) { return !!(g.expireOv && g.expireOv[String(k)]); }
+  function cardStatus(project, gift, k, today) {
+    today = today || todayStr();
+    if (k <= (gift.used | 0)) return 'used';
+    const issue = issueOf(gift, k, project);
+    const exp = expireOf(project, gift, k);
+    if (!issue || issue > today) return 'wait';
+    if (!exp || exp < today) return exp ? 'expired' : 'wait';
+    if (exp === today) return 'today';
+    const left = daysBetween(today, exp);
+    if (left != null && left <= 7) return 'soon';
+    return 'usable';
+  }
+  function useCurrent(gift, today, project) {
+    today = today || todayStr();
+    const qty = project ? actualQty(project, gift) : (gift.qty | 0);
+    const step = project ? actualStep(project, gift) : monthStep(gift);
+    if ((gift.used | 0) >= qty) return '';
+    const k = gift.used + 1;
+    const issue = issueOf(gift, k, project) || gift.anchor || today;
+    gift.log = gift.log || [];
+    gift.log.push({ k: k, date: today, issue: issue });
+    gift.used += 1;
+    if (gift.used % step !== 0) return gift.anchor;
+    let next = addMonths(gift.anchor || today, 1);
+    if (!next || next < today) next = today;
+    gift.anchor = next;
+    return next;
+  }
+  function undoLast(gift) {
+    if ((gift.used | 0) <= 0) return '';
+    const k = gift.used;
+    gift.used -= 1;
+    gift.log = gift.log || [];
+    let last = null;
+    for (let i = gift.log.length - 1; i >= 0; i--) {
+      if (Number(gift.log[i].k) === k) { last = gift.log.splice(i, 1)[0]; break; }
+    }
+    if (!last && gift.log.length) last = gift.log.pop();
+    if (last && last.issue) gift.anchor = last.issue;
+    else {
+      const back = addMonths(gift.anchor, -1);
+      if (back) gift.anchor = back;
+    }
+    return gift.anchor;
+  }
+  function leftText(st, exp) {
+    if (st === 'used') return '已使用';
+    if (st === 'wait') return '未发放';
+    const n = daysLeft(exp);
+    if (n == null) return '—';
+    if (n < 0) return '过期 ' + (-n) + ' 天';
+    if (n === 0) return '今天到期';
+    return '剩 ' + n + ' 天';
+  }
+  function runIds(project, all) {
+    const ids = all ? accountIdsOf(project) : scopeAccountIds(project);
+    return ids.length ? ids : [''];
+  }
+  function tally(p, all) {
+    const t = { all: 0, usable: 0, soon: 0, today: 0, expired: 0, wait: 0, used: 0 };
+    runIds(p, all).forEach(function (id) {
+      const view = id ? viewOf(p, id) : p;
+      (p.series || []).forEach(function (g) {
+        const slot = id ? slotOf(g, id) : g;
+        for (let k = 1; k <= actualQty(view, g); k++) {
+          t.all += 1;
+          const s = cardStatus(view, slot, k);
+          if (s === 'soon' || s === 'today' || s === 'usable') t.usable += 1;
+          if (s === 'soon') t.soon += 1;
+          if (s === 'today') t.today += 1;
+          if (s === 'expired') t.expired += 1;
+          if (s === 'wait') t.wait += 1;
+          if (s === 'used') t.used += 1;
+        }
+      });
+    });
+    return t;
+  }
+  function countLine(t) {
+    const left = t.usable + t.wait;
+    return '可用 ' + t.usable + ' / ' + t.all + (t.expired ? ' · 过期 ' + t.expired : '') + ' · 剩余 ' + left + ' 张';
+  }
+  function projectStatus(p, all) {
+    const t = tally(p, all);
+    if (!t.all) return 'empty';
+    if (t.used === t.all) return 'usedup';
+    if (t.today) return 'today';
+    if (t.soon) return 'soon';
+    if (t.usable) return 'ok';
+    if (t.expired) return 'expired';
+    if (t.wait) return 'wait';
+    return 'empty';
+  }
+  function nearestLine(p, all) {
+    let best = '';
+    runIds(p, all).forEach(function (id) {
+      const view = id ? viewOf(p, id) : p;
+      (p.series || []).forEach(function (g) {
+        const slot = id ? slotOf(g, id) : g;
+        for (let k = 1; k <= actualQty(view, g); k++) {
+          const s = cardStatus(view, slot, k);
+          if (s === 'usable' || s === 'soon' || s === 'today') {
+            const e = expireOf(view, slot, k);
+            if (e && (!best || e < best)) best = e;
+          }
+        }
+      });
+    });
+    return best ? '最近到期 ' + best : '';
+  }
+  function seriesSummary(p, all) {
+    if (!p.series || !p.series.length) return '未填写礼包';
+    const ids = all ? accountIdsOf(p) : scopeAccountIds(p);
+    let note = '';
+    if (ids.length > 1) note = accountCopiesLabel(p, ids);
+    else if (ids.length === 1 && copiesOf(p, ids[0]) > 1) note = copiesOf(p, ids[0]) + '份';
+    else if (!ids.length && copiesOf(p) > 1) note = copiesOf(p) + '份';
+    const body = p.series.map(function (g) {
+      if (ids.length > 1) return g.name + ' 一份' + (g.qty | 0) + '张';
+      const view = ids.length ? viewOf(p, ids[0]) : p;
+      const step = actualStep(view, g);
+      return g.name + ' ' + actualQty(view, g) + '张' + (step > 1 ? '(每月' + step + ')' : '');
+    }).join(' · ');
+    return note ? body + ' · ' + note : body;
+  }
+  function remainCount(p, g, today) {
+    let n = 0;
+    for (let k = 1; k <= actualQty(p, g); k++) {
+      const s = cardStatus(p, g, k, today);
+      if (s !== 'used' && s !== 'expired') n += 1;
+    }
+    return n;
+  }
+  function remainCash(p, g, today) {
+    return roundMoney(remainCount(p, g, today) * moneyNum(g.price));
+  }
+  function orderProfit(cost, cash, copies) {
+    const n = Math.max(1, copies | 0 || 1);
+    return roundMoney((moneyNum(cash) - moneyNum(cost)) * n);
+  }
+  function profitRateLabel(cost, cash) {
+    const c = moneyNum(cost);
+    const k = moneyNum(cash);
+    if (!(c > 0)) return '(润:—)';
+    return '(润:' + Math.round((k - c) / c * 100) + '%)';
+  }
+  function projectMoney(p, today, all) {
+    const cost = moneyNum(p.cost);
+    const cash = moneyNum(p.cash);
+    let remain = 0;
+    const ids = all ? accountIdsOf(p) : scopeAccountIds(p);
+    (p.series || []).forEach(function (g) {
+      if (!ids.length) remain += remainCash(p, g, today);
+      else ids.forEach(function (id) { remain += remainCash(viewOf(p, id), slotOf(g, id), today); });
+    });
+    const copyCount = ids.length ? ids.reduce(function (n, id) { return n + copiesOf(p, id); }, 0) : copiesOf(p);
+    const n = copyCount || 1;
+    return { cost: cost, cash: cash, spent: roundMoney(cost * n), remain: roundMoney(remain), profit: orderProfit(cost, cash, n) };
+  }
+  function moneyOfAll() {
+    const t = { cost: 0, profit: 0, remain: 0 };
+    state.projects.forEach(function (p) {
+      const m = projectMoney(p, null, true);
+      t.cost += m.spent;
+      t.profit += m.profit;
+      t.remain += m.remain;
+    });
+    return { cost: roundMoney(t.cost), profit: roundMoney(t.profit), remain: roundMoney(t.remain) };
+  }
+  function priceLine(m) {
+    return '<div class="price-line">' +
+      '<span><em>每单成本价</em><b>' + yuan(m.cost) + '</b></span>' +
+      '<span><em>每单可变现价</em><b>' + yuan(m.cash) + '</b></span>' +
+      '<span><em>剩余可变现</em><b>' + yuan(m.remain) + '</b></span>' +
+      '<span class="' + (m.profit < 0 ? 'down' : '') + '"><em>总利润</em><b>' + yuan(m.profit) + '</b></span></div>';
+  }
+  function moneyBar() {
+    const t = moneyOfAll();
+    return '<section class="card money-card"><div class="money-head"><div class="money-label">全部账号合计</div><button type="button" class="btn primary" data-act="add">添加保单</button></div><div class="money">' +
+      '<div><b>' + yuan(t.cost) + '</b><span>总支出</span></div>' +
+      '<div class="' + (t.profit < 0 ? 'down' : '') + '"><b>' + yuan(t.profit) + '</b><span>总利润</span></div>' +
+      '<div><b>' + yuan(t.remain) + '</b><span>剩余变现金额</span></div></div></section>';
+  }
+  function pill(st) {
+    const item = STATUS[st] || [st, 'wait'];
+    return '<span class="pill ' + item[1] + '">' + item[0] + '</span>';
+  }
+  function accountName(id) {
+    const a = state.accounts.find(function (x) { return x.id === id; });
+    return a ? a.name : '未分配';
+  }
+  function accountNameFrom(accounts, id) {
+    const a = (accounts || []).find(function (x) { return x.id === id; });
+    return a ? a.name : '';
+  }
+  function scopedProjects() {
+    if (state.currentAccountId === 'all') return state.projects.slice();
+    return state.projects.filter(function (p) { return accountIdsOf(p).indexOf(state.currentAccountId) >= 0; });
+  }
+  function matchFilter(p) {
+    const f = ui.filter;
+    if (f === 'all') return true;
+    const t = tally(p);
+    if (f === 'usable') return t.usable > 0;
+    if (f === 'left') return t.usable + t.wait > 0;
+    if (f === 'soon') return t.soon > 0;
+    if (f === 'today') return t.today > 0;
+    if (f === 'expired') return t.expired > 0;
+    if (f === 'wait') return t.wait > 0;
+    if (f === 'used') return t.used > 0;
+    if (f === 'usedup') return t.all > 0 && t.used === t.all;
+    return true;
+  }
+  function matchQ(p) {
+    const q = ui.q.trim().toLowerCase();
+    if (!q) return true;
+    const blob = [p.name].concat((p.series || []).map(function (g) { return g.name || ''; })).join(' ').toLowerCase();
+    return q.split(/\s+/).every(function (part) { return blob.indexOf(part) >= 0; });
+  }
+  function statsOf(list) {
+    const t = { all: 0, usable: 0, left: 0 };
+    list.forEach(function (p) {
+      const x = tally(p);
+      t.all += x.all;
+      t.usable += x.usable;
+      t.left += x.usable + x.wait;
+    });
+    return t;
+  }
+
+  function bootstrap() {
+    const id = uid('a');
+    return { version: 1, updatedAt: new Date().toISOString(), currentAccountId: id, accounts: [{ id: id, name: '我的好车主', note: '' }], projects: [] };
+  }
+  function normalize(data) {
+    data.version = 1;
+    data.accounts = Array.isArray(data.accounts) ? data.accounts : [];
+    data.projects = Array.isArray(data.projects) ? data.projects : [];
+    data.accounts.forEach(function (a) {
+      if (!a.id) a.id = uid('a');
+      a.name = a.name || '未命名账号';
+      a.note = a.note || '';
+    });
+    data.projects.forEach(function (p) {
+      if (!p.id) p.id = uid('p');
+      p.name = p.name || '';
+      p.note = p.note || '';
+      p.firstIssue = normalizeDate(p.firstIssue) || p.firstIssue || '';
+      p.validMonths = Math.max(1, p.validMonths | 0 || 1);
+      p.copies = Math.max(1, p.copies | 0 || 1);
+      p.cost = moneyNum(p.cost);
+      p.cash = moneyNum(p.cash);
+      p.series = Array.isArray(p.series) ? p.series : [];
+      p.series.forEach(function (g) {
+        if (!g.gid) g.gid = uid('g');
+        g.name = g.name || '';
+        g.qty = Math.max(1, g.qty | 0 || 1);
+        g.perMonth = Math.max(1, Math.min(g.qty, g.perMonth | 0 || 1));
+        g.price = moneyNum(g.price);
+        g.anchor = normalizeDate(g.anchor) || g.anchor || p.firstIssue || '';
+        g.log = Array.isArray(g.log) ? g.log : [];
+        g.expireOv = g.expireOv || {};
+        g.issueOv = g.issueOv || {};
+        g.holders = g.holders && typeof g.holders === 'object' ? g.holders : {};
+      });
+    });
+    if (!data.accounts.length) {
+      const id = uid('a');
+      data.accounts.push({ id: id, name: '我的好车主', note: '' });
+      data.currentAccountId = id;
+    }
+    const known = {};
+    data.accounts.forEach(function (a) { known[a.id] = true; });
+    data.projects.forEach(function (p) {
+      const ids = (Array.isArray(p.accountIds) ? p.accountIds : []).filter(function (id) { return known[id]; });
+      if (!ids.length && p.accountId && known[p.accountId]) ids.push(p.accountId);
+      if (!ids.length) ids.push(data.accounts[0].id);
+      p.accountIds = ids.filter(function (id, i) { return ids.indexOf(id) === i; });
+      p.accountId = p.accountIds[0];
+      const base = Math.max(1, p.copies | 0 || 1);
+      const prevMap = p.accountCopies && typeof p.accountCopies === 'object' ? p.accountCopies : {};
+      const nextMap = {};
+      p.accountIds.forEach(function (id) { nextMap[id] = Math.max(1, prevMap[id] | 0 || base); });
+      p.accountCopies = nextMap;
+      p.copies = nextMap[p.accountId] || base;
+      p.series.forEach(function (g) { trimGift(p, g); });
+    });
+  }
+  function ensure() {
+    if (!state.accounts.length) {
+      const id = uid('a');
+      state.accounts.push({ id: id, name: '我的好车主', note: '' });
+      state.currentAccountId = id;
+    }
+    if (state.currentAccountId !== 'all' && !state.accounts.some(function (a) { return a.id === state.currentAccountId; })) {
+      state.currentAccountId = state.accounts[0].id;
+    }
+  }
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      state = raw ? JSON.parse(raw) : bootstrap();
+    } catch (e) {
+      state = bootstrap();
+    }
+    normalize(state);
+    ensure();
+  }
+  function persist(opts) {
+    opts = opts || {};
+    if (!opts.keepTime) state.updatedAt = new Date().toISOString();
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { toast('浏览器无法保存，请马上导出 JSON'); }
+    if (!opts.skipSync) scheduleSync();
+  }
+  function mutate() { persist(); render(); }
+
+  function headerHTML(active) {
+    const search = active === 'home'
+      ? '<input id="q" class="top-search" type="search" placeholder="搜索套餐、礼包" aria-label="搜索套餐、礼包" value="' + esc(ui.q) + '">'
+      : '';
+    return '<header class="top"><div class="top-row"><div class="brand"><div class="logo">券</div><div><h1>card</h1><p>' + (cloudCfg() ? '网页版 · 已开云端同步' : '网页版 · 数据只在本机') + '</p></div></div>' +
+      '<div class="top-side">' + search +
+      '<nav class="nav">' +
+      '<button type="button" class="' + (active === 'home' ? 'on' : '') + '" data-act="go" data-hash="#/">保单 · ' + (state.projects || []).length + '</button>' +
+      '<button type="button" class="' + (active === 'accounts' ? 'on' : '') + '" data-act="go" data-hash="#/accounts">账号 · ' + (state.accounts || []).length + '</button>' +
+      '<button type="button" class="' + (active === 'data' ? 'on' : '') + '" data-act="go" data-hash="#/data">数据</button>' +
+      '<button type="button" data-act="theme">' + (document.documentElement.getAttribute('data-theme') === 'dark' ? '白天' : '黑夜') + '</button>' +
+      '</nav></div></div>';
+  }
+  function statButtons(st) {
+    const items = [
+      ['all', st.all, '总数', '全部卡券'],
+      ['usable', st.usable, '可用', '含临期和今天'],
+      ['left', st.left, '剩余卡券', '未使用且未过期']
+    ];
+    return '<div class="stats">' + items.map(function (it) {
+      return '<button type="button" class="stat' + (ui.filter === it[0] ? ' on' : '') + '" data-act="filter" data-f="' + it[0] + '"><b>' + it[1] + '</b><span>' + it[2] + '</span><em>' + it[3] + '</em></button>';
+    }).join('') + '</div></header>';
+  }
+  function pageHome() {
+    if (ui.filter === 'soon' || ui.filter === 'today' || ui.filter === 'expired') ui.filter = 'all';
+    const list = scopedProjects();
+    const st = statsOf(list);
+    const chips = '<button type="button" class="chip' + (state.currentAccountId === 'all' ? ' on' : '') + '" data-act="set-acc" data-id="all">全部账号</button>' +
+      state.accounts.map(function (a) {
+        const n = state.projects.filter(function (p) { return accountIdsOf(p).indexOf(a.id) >= 0; }).length;
+        return '<button type="button" class="chip' + (state.currentAccountId === a.id ? ' on' : '') + '" data-act="set-acc" data-id="' + esc(a.id) + '">' + esc(a.name) + ' · ' + n + '</button>';
+      }).join('');
+    return headerHTML('home') + statButtons(st) + moneyBar() +
+      '<div class="chips">' + chips + '</div>' +
+      '<div id="list">' + listHTML() + '</div>' +
+      (testErrs.length ? '<div class="banner">自检未通过：' + esc(testErrs.join('；')) + '</div>' : '');
+  }
+  function listHTML() {
+    const rows = scopedProjects().filter(matchFilter).filter(matchQ).slice().reverse();
+    if (!state.projects.length) {
+      return '<div class="card empty"><h2>还没有保单</h2><p class="muted">点下面添加，或到「数据」里导入手机版表格。</p><div class="ops" style="justify-content:center"><button type="button" class="btn primary" data-act="add">添加保单</button><button type="button" class="btn ghost" data-act="sample">填入示例</button></div></div>';
+    }
+    if (!rows.length) return '<div class="card empty"><h2>这个筛选下没有保单</h2><p class="muted">换一个状态，或清空搜索。</p></div>';
+    const showAcc = state.currentAccountId === 'all' || rows.some(function (p) { return accountIdsOf(p).length > 1; });
+    return '<div class="m-list">' + rows.map(function (p) {
+      const t = tally(p);
+      const m = projectMoney(p);
+      return '<article class="card policy"><div class="policy-top"><button type="button" class="name-btn" data-act="open" data-id="' + esc(p.id) + '">' + esc(p.name + profitRateLabel(m.cost, m.cash)) + '</button>' + pill(projectStatus(p)) + '</div>' +
+        '<p class="muted sum">' + esc(seriesSummary(p)) + (p.note ? '<br>' + esc(p.note) : '') + '</p>' + priceLine(m) +
+        '<p class="muted policy-meta">' + countLine(t) + (showAcc ? ' · ' + esc(accountCopiesLabel(p) || accountLabel(p)) : '') + '<br>' + esc(nearestLine(p) || '暂无可用券') + '</p>' +
+        '<div class="ops"><button type="button" class="btn small primary" data-act="open" data-id="' + esc(p.id) + '">详情</button><button type="button" class="btn small ghost" data-act="edit" data-id="' + esc(p.id) + '">编辑</button><button type="button" class="btn small danger" data-act="del-project" data-id="' + esc(p.id) + '">删除</button></div></article>';
+    }).join('') + '</div>';
+  }
+  function pageDetail(id) {
+    const p = state.projects.find(function (x) { return x.id === id; });
+    if (!p) return headerHTML('home') + '</header><p>找不到这张保单。</p><button type="button" class="btn" data-act="go" data-hash="#/">返回</button>';
+    const ids = accountIdsOf(p);
+    const gifts = ids.map(function (id) {
+      const blocks = (p.series || []).map(function (g, gi) { return giftBlock(p, g, gi, id); }).join('');
+      return (ids.length > 1 ? '<h3 class="acc-head">' + esc(accountName(id)) + ' · ' + copiesOf(p, id) + ' 份</h3>' : '') + blocks;
+    }).join('');
+    return headerHTML('home') + '</header><div class="section"><button type="button" class="back" data-act="go" data-hash="#/">← 返回保单</button>' +
+      '<div class="card pad"><div class="page-title"><div><h2>' + esc(p.name) + '</h2><div class="meta">' + pill(projectStatus(p, true)) +
+      '<span class="muted">账号 ' + esc(accountCopiesLabel(p) || accountLabel(p)) + '</span></div></div>' +
+      '<div class="ops"><button type="button" class="btn ghost" data-act="edit" data-id="' + esc(p.id) + '">编辑</button><button type="button" class="btn danger" data-act="del-project" data-id="' + esc(p.id) + '">删除</button></div></div>' +
+      priceLine(projectMoney(p, null, true)) +
+      '<div class="grid-2"><label class="field">首次发放<input type="date" data-act="first" data-id="' + esc(p.id) + '" value="' + esc(p.firstIssue || '') + '"></label>' +
+      '<label class="field">有效期(月)<input type="number" min="1" data-act="valid" data-id="' + esc(p.id) + '" value="' + esc(p.validMonths) + '"></label></div>' +
+      (p.note ? '<p class="muted">备注：' + esc(p.note) + '</p>' : '') +
+      '<p class="help">每张卡券从自己的发放日起有效一个月，今天晚于到期日就自动变为已过期。剩余可变现只计算还没过期、也还没使用的卡券。礼包里的每月张数按一份填写。每个账号的购买份数分开计算，使用一张只减少这个账号的张数。同一个月的实际张数用完后才顺延到下月。</p></div>' +
+      '<div class="card section">' + (gifts || '<div class="empty">还没有礼包</div>') + '</div></div>';
+  }
+  function giftBlock(p, g, gi, accountId) {
+    const view = accountId ? viewOf(p, accountId) : p;
+    const slot = accountId ? ensureHolder(g, accountId, false) : g;
+    const total = actualQty(view, g);
+    const step = actualStep(view, g);
+    const copies = copiesOf(view);
+    const usedUp = slot.used >= total;
+    const cur = Math.min(total, slot.used + 1);
+    const now = usedUp ? '这一种已全部用完' : ('现在：第 ' + cur + ' 张 · 发放 ' + (issueOf(slot, cur, view) || '—') + ' · 到期 ' + (expireOf(view, slot, cur) || '—'));
+    let desk = '<table class="only-d"><thead><tr><th>序号</th><th>状态</th><th>发放日</th><th>到期日</th><th>剩余</th><th>使用日</th><th></th></tr></thead><tbody>';
+    let mob = '<div class="blocks">';
+    const accAttr = accountId ? ' data-acc="' + esc(accountId) + '"' : '';
+    for (let k = 1; k <= total; k++) {
+      const st = cardStatus(view, slot, k);
+      const issue = issueOf(slot, k, view) || '—';
+      const exp = expireOf(view, slot, k) || '—';
+      const log = (slot.log || []).find(function (x) { return Number(x.k) === k; });
+      const manual = (isManualIssue(slot, k) ? '手动发放 ' : '') + (isManualExpire(slot, k) ? '手动到期' : '');
+      const ops = '<div class="ops"><button type="button" class="btn small ghost" data-act="edit-issue" data-id="' + esc(p.id) + '" data-gi="' + gi + '" data-k="' + k + '"' + accAttr + '>改发放</button>' +
+        '<button type="button" class="btn small ghost" data-act="edit-expire" data-id="' + esc(p.id) + '" data-gi="' + gi + '" data-k="' + k + '"' + accAttr + '>改到期</button>' +
+        ((isManualIssue(slot, k) || isManualExpire(slot, k)) ? '<button type="button" class="btn small ghost" data-act="clear-card" data-id="' + esc(p.id) + '" data-gi="' + gi + '" data-k="' + k + '"' + accAttr + '>恢复自动</button>' : '') +
+        '</div>';
+      desk += '<tr><td>第' + k + '张</td><td>' + pill(st) + '</td><td>' + esc(issue) + (isManualIssue(slot, k) ? ' <span class="muted">手动</span>' : '') + '</td><td>' + esc(exp) + (isManualExpire(slot, k) ? ' <span class="muted">手动</span>' : '') + '</td><td>' + esc(leftText(st, expireOf(view, slot, k))) + '</td><td>' + esc(log ? log.date : '—') + '</td><td>' + ops + '</td></tr>';
+      mob += '<div class="coupon"><div class="row"><b>第 ' + k + ' 张</b>' + pill(st) + '</div><p class="muted">发放 ' + esc(issue) + (isManualIssue(slot, k) ? '（手动）' : '（自动）') + '<br>到期 ' + esc(exp) + (isManualExpire(slot, k) ? '（手动）' : '（自动）') + '<br>' + esc(leftText(st, expireOf(view, slot, k))) + (log ? ' · 使用于 ' + esc(log.date) : '') + (manual ? '' : '') + '</p>' + ops + '</div>';
+    }
+    desk += '</tbody></table>';
+    mob += '</div>';
+    const cashN = remainCount(view, slot);
+    const who = accountId ? accountName(accountId) + ' · ' : '';
+    const scale = copies > 1 ? ('一份每月 ' + monthStep(g) + ' 张、共 ' + g.qty + ' 张 · ' + copies + ' 份 · 实际每月 ' + step + ' 张、共 ' + total + ' 张') : ('共 ' + total + ' 张 · 每月 ' + step + ' 张');
+    return '<section class="gift"><div class="gift-head"><div><h2 style="margin:0;font-size:16px">' + esc(g.name) + '</h2><p class="muted">' + who + scale + ' · 已用 ' + slot.used + ' · 还可兑现 ' + cashN + ' 张<br>单张售价 ' + yuan(g.price) + ' · 剩余可变现 ' + yuan(remainCash(view, slot)) + '<br>' + esc(now) + '</p></div>' +
+      '<div class="ops"><label class="field">当前发放<input type="date" data-act="anchor" data-id="' + esc(p.id) + '" data-gi="' + gi + '"' + accAttr + ' value="' + esc(slot.anchor || '') + '"></label>' +
+      '<button type="button" class="btn primary" data-act="use" data-id="' + esc(p.id) + '" data-gi="' + gi + '"' + accAttr + (usedUp ? ' disabled' : '') + '>使用这一张</button>' +
+      '<button type="button" class="btn ghost" data-act="undo" data-id="' + esc(p.id) + '" data-gi="' + gi + '"' + accAttr + (slot.used <= 0 ? ' disabled' : '') + '>撤销上一张</button></div></div>' +
+      desk + mob + '</section>';
+  }
+  function pageEdit() {
+    const d = editDraft;
+    const picked = d.accountIds && d.accountIds.length ? d.accountIds : (d.accountId ? [d.accountId] : []);
+    const copyMap = d.accountCopies || {};
+    const accChecks = state.accounts.map(function (a) {
+      const on = picked.indexOf(a.id) >= 0;
+      const n = copyMap[a.id] || d.copies || 1;
+      return '<div class="acc-row"><label><input type="checkbox" value="' + esc(a.id) + '"' + (on ? ' checked' : '') + '>' + esc(a.name) + '</label><input class="acc-copies" type="number" min="1" data-acc="' + esc(a.id) + '" value="' + esc(n) + '"' + (on ? '' : ' disabled') + ' title="这个账号的购买份数"><span>份</span></div>';
+    }).join('');
+    const gifts = d.gifts.map(function (g, i) {
+      return '<div class="gift-edit"><input class="g-id" type="hidden" value="' + esc(g.gid || '') + '"><input class="g-name" placeholder="礼包名称，如 100-20话费券" value="' + esc(g.name) + '"><input class="g-qty" type="number" min="1" placeholder="一份总张数" title="一份的总张数" value="' + esc(showNum(g.qty)) + '"><input class="g-month" type="number" min="1" placeholder="一份每月张数" title="一份的每月张数" value="' + esc(showNum(g.perMonth)) + '"><input class="g-price" type="number" min="0" step="0.01" placeholder="单张售价" title="单张售价" value="' + esc(showNum(g.price)) + '"><button type="button" class="btn small danger" data-act="del-gift" data-gi="' + i + '">删除</button></div>';
+    }).join('');
+    const pickedCopies = {};
+    picked.forEach(function (id) { pickedCopies[id] = copyMap[id] || d.copies || 1; });
+    const copySum = Object.keys(pickedCopies).reduce(function (n, id) { return n + (pickedCopies[id] | 0 || 1); }, 0) || 1;
+    const profitNow = orderProfit(d.cost, d.cash, copySum);
+    const unitProfit = roundMoney(moneyNum(d.cash) - moneyNum(d.cost));
+    const copyHint = copyHintText(pickedCopies, d.gifts);
+    return headerHTML('home') + '</header><div class="section"><button type="button" class="back" data-act="cancel-edit">← 返回</button><div class="card form">' +
+      '<h2 style="margin:0">' + (d.id ? '编辑保单' : '添加保单') + '</h2>' +
+      (d.id ? '' : templateListHTML()) +
+      '<div class="field">所属账号和购买份数<div class="checks" id="f-accs">' + accChecks + '</div></div>' +
+      '<div class="inline" style="display:flex;gap:8px"><input id="f-new-acc" placeholder="新账号名称，如 家庭主账号"><button type="button" class="btn ghost" data-act="create-acc">新增账号</button></div>' +
+      '<label class="field">套餐名称<input id="f-name" placeholder="输入新的套餐名称，例如自己的礼包名" value="' + esc(d.name) + '"></label>' +
+      (d.tip ? '<p class="help">' + esc(d.tip) + '</p>' : '') +
+      '<div class="grid-2"><label class="field">首次发放<input id="f-first" type="date" value="' + esc(d.firstIssue) + '"></label>' +
+      '<label class="field">有效期(月)<input id="f-valid" type="number" min="1" value="' + esc(d.validMonths) + '"></label></div>' +
+      '<p class="help" id="f-copy-hint">' + esc(copyHint) + '</p>' +
+      '<div class="grid-2"><label class="field">每单成本价<input id="f-cost" type="number" min="0" step="0.01" value="' + esc(d.cost || 0) + '"></label>' +
+      '<label class="field">每单可变现价<input id="f-cash" type="number" min="0" step="0.01" value="' + esc(d.cash || 0) + '"></label></div>' +
+      '<p class="help" id="f-profit">总利润 ' + yuan(profitNow) + '（一份利润 ' + yuan(unitProfit) + ' × 各账号合计 ' + copySum + ' 份）</p>' +
+      '<label class="field">备注<textarea id="f-note" rows="2" placeholder="如 每月1张，特来电充电桩可用">' + esc(d.note) + '</textarea></label>' +
+      '<div><div style="display:flex;justify-content:space-between;align-items:center"><b>礼包</b><button type="button" class="btn small ghost" data-act="add-gift">＋ 添加一种</button></div>' +
+      '<p class="muted">礼包名称可以自己写。每月张数是同一个月能用几张，总张数是这一礼包一共多少张。</p>' +
+      '<div class="gift-edit gift-edit-head"><span>礼包</span><span>一份总张数</span><span>一份每月</span><span>单张售价</span><span></span></div><div id="giftBox">' + gifts + '</div></div>' +
+      '<p class="help">每月张数和总张数都按一份填写。每个账号旁边的份数单独生效：我买 2 份、越越买 1 份时，两边的卡券和使用记录互不影响。每单成本价和每单可变现价按一份填写，总利润按各账号份数相加。每张卡券从自己的发放日起有效一个月，过了到期日就不再计入剩余变现。</p>' +
+      '<div class="ops"><button type="button" class="btn primary" data-act="save">保存</button><button type="button" class="btn ghost" data-act="cancel-edit">取消</button></div></div></div>';
+  }
+  function pageAccounts() {
+    const rows = state.accounts.map(function (a) {
+      const n = state.projects.filter(function (p) { return accountIdsOf(p).indexOf(a.id) >= 0; }).length;
+      const cur = state.currentAccountId === a.id ? ' <span class="pill ok">当前</span>' : '';
+      return '<div class="gift"><div class="gift-head"><div><b>' + esc(a.name) + '</b>' + cur + '<p class="muted">' + n + ' 个保单' + (a.note ? ' · ' + esc(a.note) : '') + '</p></div>' +
+        '<div class="ops"><button type="button" class="btn small primary" data-act="set-acc" data-id="' + esc(a.id) + '">切换</button>' +
+        '<button type="button" class="btn small ghost" data-act="acc-rename" data-id="' + esc(a.id) + '">改名</button>' +
+        '<button type="button" class="btn small danger" data-act="acc-del" data-id="' + esc(a.id) + '">删除</button></div></div>' +
+        '<div class="inline" style="display:flex;gap:8px;margin-top:8px"><input data-acc-name="' + esc(a.id) + '" value="' + esc(a.name) + '" placeholder="账号名称"><input data-acc-note="' + esc(a.id) + '" value="' + esc(a.note || '') + '" placeholder="备注"></div></div>';
+    }).join('');
+    return headerHTML('accounts') + '</header><div class="section"><div class="card">' + rows + '</div>' +
+      '<div class="card pad section"><h2>新增账号</h2><div class="inline" style="display:flex;gap:8px"><input id="new-acc" placeholder="如 家庭主账号 / 我的好车主"><button type="button" class="btn primary" data-act="acc-add">创建</button></div>' +
+      '<p class="muted">每个账号各自一份保单。至少保留一个账号。删除账号会同时删除它下面的保单。</p></div></div>';
+  }
+  function pageData() {
+    const cards = state.projects.reduce(function (n, p) { return n + tally(p, true).all; }, 0);
+    return headerHTML('data') + '</header><div class="data-grid section">' +
+      '<section class="card pad"><h2>本机</h2><p>' + state.accounts.length + ' 个账号 · ' + state.projects.length + ' 个保单 · ' + cards + ' 张卡券</p><p class="muted">最近保存 ' + esc(state.updatedAt || '') + '</p>' +
+      '<div class="ops"><button type="button" class="btn ghost" data-act="sample">填入示例</button><button type="button" class="btn danger" data-act="clear-all">清空全部数据</button></div></section>' +
+      '<section class="card pad"><h2>云端同步</h2><p class="muted">每次保存都会上传到你自己的 GitHub 私密 Gist。其他手机或电脑打开本页并填入同一个同步码，会自动采用较新的一份。同步码里有访问令牌，只放在自己的设备上。</p>' +
+      '<p><b id="cloud-status">' + esc(cloudStatus) + '</b></p>' +
+      (cloudCfg()
+        ? '<div class="ops"><button type="button" class="btn primary" data-act="cloud-now">立即同步</button><button type="button" class="btn ghost" data-act="cloud-copy">复制同步码</button><button type="button" class="btn danger" data-act="cloud-off">停止本机同步</button></div>'
+        : '<div class="ops"><button type="button" class="btn primary" data-act="cloud-on">开启并上传</button><button type="button" class="btn ghost" data-act="cloud-use">填入同步码</button></div>') +
+      '<p class="help">令牌在 GitHub → Settings → Developer settings → Personal access tokens 生成。经典令牌勾选 gist；细粒度令牌把 Gists 设为读写。云端是完整 JSON，含账号备注。</p></section>' +
+      '<section class="card pad"><h2>JSON 备份 / 还原</h2><p class="muted">这是完整备份，包含使用记录、顺延后的发放日、单张手动日期。换手机或换电脑时，用这个文件还原，避免只靠表格丢掉改期。</p>' +
+      '<div class="ops"><button type="button" class="btn primary" data-act="export-json">下载 JSON</button><button type="button" class="btn ghost" data-act="copy-json">复制 JSON</button><button type="button" class="btn ghost" data-act="pick-file" data-kind="json">从文件还原</button></div>' +
+      '<textarea id="paste" class="code" placeholder="也可以把另一台设备复制的 JSON 粘贴到这里"></textarea><button type="button" class="btn" data-act="paste-json">粘贴内容还原</button></section>' +
+      '<section class="card pad"><h2>电脑网盘文件</h2><p class="muted">两台电脑也可以把 JSON 放进网盘同步文件夹（OneDrive、坚果云等），都在本页绑定同一个文件。打开页面时按最近修改时间采用较新的一份。手机浏览器绑不了本地文件，请用上面的云端同步。</p>' +
+      '<p><b>' + esc(syncStatus) + '</b></p><div class="ops"><button type="button" class="btn primary" data-act="bind-sync">选择已有同步文件</button><button type="button" class="btn ghost" data-act="save-sync">另存为同步文件</button><button type="button" class="btn ghost" data-act="read-sync">立即对齐</button></div></section>' +
+      '<section class="card pad"><h2>表格导入 / 导出</h2><p class="muted">导出 xlsx 含两张表：「保单」与手机版相同（账号、礼包、张数、已用、当前发放、首次发放、有效期），「卡券明细」是每一张的发放日和到期日。csv 只有保单表。导入前可以预览，也可以下载模板。</p>' +
+      '<div class="ops"><button type="button" class="btn primary" data-act="export-xlsx">导出 xlsx</button><button type="button" class="btn ghost" data-act="export-csv">导出 csv</button><button type="button" class="btn ghost" data-act="template">下载模板</button><button type="button" class="btn ghost" data-act="pick-file" data-kind="table">导入表格</button></div>' +
+      '<p class="help">同名保单可以按手机版把同名礼包张数相加，也可以用表格覆盖。每单成本价、每单可变现价、每月张数和单张售价写在表尾；旧表格没有这些列时，会保留原来的价格。单张手动改期请用「卡券明细」表导回，或直接用 JSON。</p></section></div>';
+  }
+
+  function emptyGift() {
+    return { gid: '', name: '', qty: '', perMonth: '', price: '' };
+  }
+  function showNum(v) {
+    return v === '' || v == null ? '' : v;
+  }
+  function rawInt(v) {
+    const s = String(v == null ? '' : v).trim();
+    if (!s) return '';
+    const n = parseInt(s, 10);
+    return n > 0 ? n : '';
+  }
+  function rawPrice(v) {
+    const s = String(v == null ? '' : v).trim();
+    if (!s) return '';
+    return moneyNum(s);
+  }
+  function readDraft() {
+    const gifts = [];
+    document.querySelectorAll('#giftBox .gift-edit').forEach(function (row) {
+      gifts.push({
+        gid: row.querySelector('.g-id').value,
+        name: row.querySelector('.g-name').value,
+        qty: rawInt(row.querySelector('.g-qty').value),
+        perMonth: rawInt(row.querySelector('.g-month').value),
+        price: rawPrice(row.querySelector('.g-price').value)
+      });
+    });
+    return {
+      key: editDraft.key,
+      id: editDraft.id,
+      accountIds: Array.from(document.querySelectorAll('#f-accs input[type="checkbox"]:checked')).map(function (input) { return input.value; }),
+      accountId: (document.querySelector('#f-accs input[type="checkbox"]:checked') || {}).value || '',
+      accountCopies: (function () {
+        const map = {};
+        document.querySelectorAll('#f-accs input[type="checkbox"]:checked').forEach(function (box) {
+          const n = box.closest('.acc-row').querySelector('.acc-copies');
+          map[box.value] = Math.max(1, parseInt(n && n.value, 10) || 1);
+        });
+        return map;
+      })(),
+      copies: (function () {
+        const box = document.querySelector('#f-accs input[type="checkbox"]:checked');
+        const n = box && box.closest('.acc-row').querySelector('.acc-copies');
+        return Math.max(1, parseInt(n && n.value, 10) || 1);
+      })(),
+      name: document.getElementById('f-name').value,
+      note: document.getElementById('f-note').value,
+      firstIssue: document.getElementById('f-first').value,
+      validMonths: Math.max(1, parseInt(document.getElementById('f-valid').value, 10) || 1),
+      cost: moneyNum(document.getElementById('f-cost').value),
+      cash: moneyNum(document.getElementById('f-cash').value),
+      tip: editDraft.tip || '',
+      gifts: gifts
+    };
+  }
+  function makeDraft(id) {
+    if (id && id !== 'new') {
+      const p = state.projects.find(function (x) { return x.id === id; });
+      if (!p) return makeDraft('new');
+      return {
+        key: id, id: p.id, accountId: accountIdsOf(p)[0] || p.accountId, accountIds: accountIdsOf(p), accountCopies: Object.assign({}, p.accountCopies || {}), name: p.name, note: p.note || '',
+        firstIssue: p.firstIssue || todayStr(), validMonths: p.validMonths || 1, copies: copiesOf(p), cost: moneyNum(p.cost), cash: moneyNum(p.cash), tip: '',
+        gifts: p.series.length ? p.series.map(function (g) { return { gid: g.gid, name: g.name, qty: g.qty, perMonth: monthStep(g), price: moneyNum(g.price) }; }) : [emptyGift()]
+      };
+    }
+    const acc = state.currentAccountId !== 'all' ? state.currentAccountId : state.accounts[0].id;
+    const freshCopies = {};
+    freshCopies[acc] = 1;
+    return { key: 'new', id: '', accountId: acc, accountIds: [acc], accountCopies: freshCopies, name: '', note: '', firstIssue: todayStr(), validMonths: 1, copies: 1, cost: 0, cash: 0, tip: '', gifts: [emptyGift()] };
+  }
+  function copyHintText(map, gifts) {
+    const ids = Object.keys(map || {});
+    if (!ids.length) return '请至少选择一个账号，并填写这个账号的购买份数。';
+    return ids.map(function (id) {
+      const copies = Math.max(1, map[id] | 0 || 1);
+      const parts = (gifts || []).filter(function (g) { return String(g.name || '').trim(); }).map(function (g) {
+        const qty = g.qty === '' || g.qty == null ? 0 : (g.qty | 0);
+        const month = g.perMonth === '' || g.perMonth == null ? 0 : (g.perMonth | 0);
+        if (!qty || !month) return g.name;
+        return g.name + ' 实际每月 ' + (month * copies) + ' 张、共 ' + (qty * copies) + ' 张';
+      });
+      return accountName(id) + ' ' + copies + ' 份' + (parts.length ? '：' + parts.join('；') : '');
+    }).join('。') + '。每个账号的份数和使用记录分开计算。';
+  }
+  function savedTemplates() {
+    const seen = {};
+    const list = [];
+    state.projects.slice().reverse().forEach(function (p) {
+      const gifts = (p.series || []).filter(function (g) { return String(g.name || '').trim(); });
+      if (!String(p.name || '').trim() || !gifts.length) return;
+      const sig = gifts.map(function (g) {
+        return g.name + '\t' + (g.qty | 0) + '\t' + monthStep(g) + '\t' + moneyNum(g.price);
+      }).join('\n');
+      const key = [p.name, p.validMonths || 1, copiesOf(p), moneyNum(p.cost), moneyNum(p.cash), p.note || '', sig].join('\n');
+      const acc = accountLabel(p);
+      if (seen[key]) {
+        if (seen[key].accounts.indexOf(acc) < 0) seen[key].accounts.push(acc);
+        return;
+      }
+      const item = {
+        id: p.id, name: p.name, summary: seriesSummary(p),
+        cost: moneyNum(p.cost), cash: moneyNum(p.cash), accounts: [acc]
+      };
+      seen[key] = item;
+      list.push(item);
+    });
+    return list;
+  }
+  function templateListHTML() {
+    const list = savedTemplates();
+    if (!list.length) return '';
+    return '<details class="catalog"><summary>从已填过的套餐填入</summary><div class="tpl-box">' + list.map(function (t) {
+      return '<button type="button" class="tpl" data-act="fill-tpl" data-id="' + esc(t.id) + '"><b>' + esc(t.name) + '</b><small>' +
+        esc(t.summary) + ' · 成本 ' + yuan(t.cost) + ' · 可变现 ' + yuan(t.cash) + ' · ' + esc(t.accounts.join('、')) + '</small></button>';
+    }).join('') + '</div></details>';
+  }
+  function fillFromTemplate(id) {
+    const p = state.projects.find(function (x) { return x.id === id; });
+    if (!p) return toast('找不到这个套餐');
+    const keep = readDraft();
+    editDraft = keep;
+    editDraft.name = p.name;
+    editDraft.note = p.note || '';
+    editDraft.validMonths = p.validMonths || 1;
+    editDraft.accountCopies = editDraft.accountCopies || {};
+    const fallbackCopies = copiesOf(p);
+    (editDraft.accountIds || []).forEach(function (id) {
+      editDraft.accountCopies[id] = (p.accountCopies && p.accountCopies[id]) || fallbackCopies;
+    });
+    editDraft.copies = editDraft.accountCopies[editDraft.accountIds[0]] || fallbackCopies;
+    editDraft.cost = moneyNum(p.cost);
+    editDraft.cash = moneyNum(p.cash);
+    editDraft.gifts = (p.series || []).filter(function (g) { return String(g.name || '').trim(); }).map(function (g) {
+      return { gid: '', name: g.name, qty: g.qty, perMonth: monthStep(g), price: moneyNum(g.price) };
+    });
+    if (!editDraft.gifts.length) editDraft.gifts = [emptyGift()];
+    editDraft.tip = '已按「' + p.name + '」填入。所属账号和首次发放日保持你现在选的，使用记录不会带过来。';
+    render();
+  }
+  function saveDraft() {
+    const d = readDraft();
+    if (!d.accountIds.length) return toast('请至少选择一个所属账号');
+    if (!d.name.trim()) return toast('请先输入套餐名称');
+    if (!normalizeDate(d.firstIssue)) return toast('请选择首次发放日期');
+    const gifts = d.gifts.filter(function (g) { return g.name.trim(); });
+    if (!gifts.length) return toast('请至少添加一种礼包');
+    if (gifts.some(function (g) { return g.qty === '' || g.perMonth === '' || g.price === ''; })) return toast('请填写每种礼包的总张数、每月张数和单张售价');
+    let p = d.id ? state.projects.find(function (x) { return x.id === d.id; }) : null;
+    if (!p) {
+      p = { id: uid('p'), accountId: d.accountIds[0], accountIds: d.accountIds.slice(), name: '', note: '', firstIssue: '', validMonths: 1, copies: 1, cost: 0, cash: 0, series: [] };
+      state.projects.push(p);
+    }
+    const oldFirst = p.firstIssue;
+    p.accountIds = d.accountIds.slice();
+    p.accountId = d.accountIds[0];
+    p.accountCopies = d.accountCopies || {};
+    p.copies = p.accountCopies[p.accountId] || d.copies || 1;
+    p.name = d.name.trim();
+    p.note = d.note.trim();
+    p.firstIssue = normalizeDate(d.firstIssue);
+    p.validMonths = d.validMonths;
+    p.cost = d.cost;
+    p.cash = d.cash;
+    p.series = gifts.map(function (g) {
+      let prev = g.gid ? p.series.find(function (s) { return s.gid === g.gid; }) : null;
+      if (!prev) return trimGift(p, blankGift(g.name.trim(), g.qty, 0, p.firstIssue, g.perMonth, g.price));
+      prev = clone(prev);
+      prev.name = g.name.trim();
+      prev.qty = g.qty;
+      prev.perMonth = Math.max(1, Math.min(prev.qty, g.perMonth || 1));
+      prev.price = moneyNum(g.price);
+      trimGift(p, prev);
+      accountIdsOf(p).forEach(function (id) {
+        const h = ensureHolder(prev, id, false);
+        if ((h.used | 0) === 0 && (!h.anchor || h.anchor === oldFirst)) h.anchor = p.firstIssue;
+        if (!h.anchor) h.anchor = p.firstIssue;
+      });
+      mirrorPrimary(p, prev);
+      return prev;
+    });
+    state.currentAccountId = 'all';
+    editDraft = null;
+    persist();
+    toast('已保存');
+    scrollHome = true;
+    go('#/');
+  }
+
+  function actedSlot(hit, el) {
+    const acc = el && el.dataset.acc;
+    if (!acc) return { slot: hit.g, view: hit.p, acc: '' };
+    return { slot: ensureHolder(hit.g, acc, false), view: viewOf(hit.p, acc), acc: acc };
+  }
+  function findGift(pid, gi) {
+    const p = state.projects.find(function (x) { return x.id === pid; });
+    if (!p) return null;
+    const g = p.series[Number(gi)];
+    if (!g) return null;
+    return { p: p, g: g };
+  }
+
+  function cell(row, i) {
+    if (i == null || i < 0) return '';
+    return String(row[i] == null ? '' : row[i]).trim();
+  }
+  function toInt(s, def) {
+    const n = parseInt(String(s).replace(/[^\d-]/g, ''), 10);
+    return Number.isFinite(n) ? n : def;
+  }
+  function mapPolicyHeader(headers) {
+    const cols = headers.map(function (h) { return String(h || '').trim().replace(/\s/g, ''); });
+    let name = -1, account = -1, valid = -1, first = -1, note = -1, cost = -1, cash = -1, copies = -1, owners = -1;
+    const gifts = [];
+    const extras = {};
+    let cur = null;
+    let giftNo = 0;
+    function flush() {
+      if (cur && (cur.name >= 0 || cur.qty >= 0)) gifts.push(cur);
+      cur = null;
+    }
+    cols.forEach(function (raw, i) {
+      if (!raw) return;
+      if ((raw === '购买份数' || raw === '份数') && copies < 0) { copies = i; return; }
+      if (raw.indexOf('所属账号') >= 0 && owners < 0) { owners = i; return; }
+      const monthHit = raw.match(/^礼包(\d+).*每月/);
+      if (monthHit) {
+        extras[monthHit[1]] = extras[monthHit[1]] || { month: -1, price: -1 };
+        extras[monthHit[1]].month = i;
+        return;
+      }
+      const priceHit = raw.match(/^礼包(\d+).*(售价|单价)/);
+      if (priceHit) {
+        extras[priceHit[1]] = extras[priceHit[1]] || { month: -1, price: -1 };
+        extras[priceHit[1]].price = i;
+        return;
+      }
+      if (raw.indexOf('成本') >= 0 && cost < 0) { cost = i; return; }
+      if (raw.indexOf('可变现') >= 0 && raw.indexOf('剩余') < 0 && cash < 0) { cash = i; return; }
+      const isGift = raw.indexOf('礼包') === 0;
+      if ((raw.indexOf('名称') >= 0 || raw === '名') && !isGift && name < 0) { name = i; return; }
+      if (raw.indexOf('账号') >= 0 && !isGift && account < 0) { account = i; return; }
+      if (raw.indexOf('备注') >= 0 && note < 0) { note = i; return; }
+      if (raw.indexOf('有效期') >= 0 && !isGift && valid < 0) { valid = i; return; }
+      const kindQty = /数量|张数|个数/.test(raw);
+      const kindUsed = raw.indexOf('已用') >= 0;
+      const kindAnchor = raw.indexOf('当前') >= 0 || raw.indexOf('顺延') >= 0;
+      if (isGift || (cur && (kindQty || kindUsed || kindAnchor))) {
+        const kindName = isGift && !kindQty && !kindUsed && !kindAnchor;
+        if (kindName) { flush(); giftNo += 1; cur = { no: String(giftNo), name: i, qty: -1, used: -1, anchor: -1, month: -1, price: -1 }; return; }
+        if (!cur) cur = { name: -1, qty: -1, used: -1, anchor: -1 };
+        if (kindQty) cur.qty = i;
+        else if (kindUsed) cur.used = i;
+        else if (kindAnchor) cur.anchor = i;
+        return;
+      }
+      if ((raw.indexOf('发放') >= 0 || raw.indexOf('生效') >= 0 || raw.indexOf('日期') >= 0 || raw.indexOf('时间') >= 0) && raw.indexOf('到期') < 0 && first < 0) first = i;
+    });
+    flush();
+    gifts.forEach(function (g) {
+      const ex = extras[g.no] || { month: -1, price: -1 };
+      g.month = ex.month;
+      g.price = ex.price;
+    });
+    if (name < 0) name = 0;
+    return { name: name, account: account, valid: valid, first: first, note: note, cost: cost, cash: cash, copies: copies, owners: owners, gifts: gifts };
+  }
+  function isDetailHeader(headers) {
+    const h = headers.map(function (x) { return String(x).replace(/\s/g, ''); });
+    const has = function (s) { return h.some(function (x) { return x.indexOf(s) >= 0; }); };
+    return has('序号') && has('发放日') && has('礼包') && !h.some(function (x) { return /^礼包\d/.test(x) || x === '礼包数量'; });
+  }
+  function findHeader(rows) {
+    const limit = Math.min(rows.length, 12);
+    for (let i = 0; i < limit; i++) {
+      const cells = rows[i].map(function (c) { return String(c || '').trim(); });
+      if (cells.some(function (c) { return c.indexOf('名称') >= 0 || c === '名' || c.indexOf('礼包') === 0 || c.indexOf('发放日') >= 0; })) return i;
+    }
+    return -1;
+  }
+  function parsePolicyRecords(rows, headerIndex, map) {
+    const records = [];
+    for (let r = headerIndex + 1; r < rows.length; r++) {
+      const row = rows[r];
+      const name = cell(row, map.name);
+      if (!name || /合计|总计|小计/.test(name)) continue;
+      const first = normalizeDate(cell(row, map.first));
+      const gifts = [];
+      map.gifts.forEach(function (g) {
+        const gn = cell(row, g.name);
+        if (!gn) return;
+        const qty = Math.max(1, toInt(cell(row, g.qty), 1));
+        let used = Math.max(0, toInt(cell(row, g.used), 0));
+        if (used > qty) used = qty;
+        let anchor = normalizeDate(cell(row, g.anchor));
+        if (!anchor) anchor = first;
+        gifts.push({
+          name: gn, qty: qty, used: used, anchor: anchor,
+          perMonth: g.month >= 0 ? Math.max(1, toInt(cell(row, g.month), 1)) : 1,
+          price: g.price >= 0 ? moneyNum(cell(row, g.price)) : 0,
+          hasMonth: g.month >= 0,
+          hasPrice: g.price >= 0
+        });
+      });
+      records.push({
+        account: cell(row, map.account) || '我的好车主',
+        name: name,
+        note: cell(row, map.note),
+        firstIssue: first,
+        validMonths: Math.max(1, toInt(cell(row, map.valid), 1)),
+        cost: map.cost >= 0 ? moneyNum(cell(row, map.cost)) : 0,
+        cash: map.cash >= 0 ? moneyNum(cell(row, map.cash)) : 0,
+        hasCost: map.cost >= 0,
+        hasCash: map.cash >= 0,
+        copies: map.copies >= 0 ? Math.max(1, toInt(cell(row, map.copies), 1)) : 1,
+        hasCopies: map.copies >= 0,
+        owners: map.owners >= 0 ? cell(row, map.owners) : '',
+        gifts: gifts
+      });
+    }
+    return records;
+  }
+  function colLike(header, pred) {
+    for (let i = 0; i < header.length; i++) if (pred(String(header[i] || '').replace(/\s/g, ''))) return i;
+    return -1;
+  }
+  function parseDetailRecords(rows, hi, header) {
+    const cAcc = colLike(header, function (h) { return h.indexOf('账号') >= 0; });
+    const cPol = colLike(header, function (h) { return h.indexOf('保单') >= 0 || h.indexOf('名称') >= 0; });
+    const cGift = colLike(header, function (h) { return h === '礼包' || (h.indexOf('礼包') >= 0 && h.indexOf('数量') < 0); });
+    const cK = colLike(header, function (h) { return h.indexOf('序号') >= 0; });
+    const cIssue = colLike(header, function (h) { return h.indexOf('发放日') >= 0; });
+    const cIssueMode = colLike(header, function (h) { return h.indexOf('发放') >= 0 && h.indexOf('方式') >= 0; });
+    const cExp = colLike(header, function (h) { return h.indexOf('到期日') >= 0; });
+    const cExpMode = colLike(header, function (h) { return h.indexOf('到期') >= 0 && h.indexOf('方式') >= 0; });
+    const records = [];
+    for (let r = hi + 1; r < rows.length; r++) {
+      const row = rows[r];
+      const policy = cell(row, cPol);
+      const gift = cell(row, cGift);
+      const k = toInt(cell(row, cK), 0);
+      if (!policy || !gift || !k) continue;
+      records.push({
+        account: cell(row, cAcc) || '我的好车主', policy: policy, gift: gift, k: k,
+        issue: normalizeDate(cell(row, cIssue)), issueMode: cell(row, cIssueMode),
+        expire: normalizeDate(cell(row, cExp)), expireMode: cell(row, cExpMode)
+      });
+    }
+    return records;
+  }
+  function parseTable(rows) {
+    if (!rows || !rows.length) throw new Error('表格是空的');
+    const hi = findHeader(rows);
+    if (hi < 0) throw new Error('没读到有效数据，请确认表头是「名称 / 礼包1 / 礼包数量…」');
+    const header = rows[hi].map(function (x) { return String(x || '').trim(); });
+    if (isDetailHeader(header)) {
+      const records = parseDetailRecords(rows, hi, header);
+      if (!records.length) throw new Error('明细表里没有可更新的卡券行');
+      return { kind: 'detail', header: header, records: records, previewRows: rows.slice(hi, hi + 8) };
+    }
+    const map = mapPolicyHeader(header);
+    const records = parsePolicyRecords(rows, hi, map);
+    if (!records.length) throw new Error('没有可导入的保单行');
+    return { kind: 'policy', header: header, records: records, previewRows: rows.slice(hi, hi + 8) };
+  }
+  function buildPolicyRows(projects, accounts) {
+    const maxG = Math.max(1, 0, ...projects.map(function (p) { return (p.series || []).length; }));
+    const header = ['账号', '名称'];
+    for (let i = 1; i <= maxG; i++) header.push('礼包' + i, '礼包数量', '礼包' + i + '已用', '礼包' + i + '当前发放');
+    header.push('首次发放时间', '有效期月', '备注', '每单成本价', '每单可变现价', '购买份数', '所属账号');
+    for (let i = 1; i <= maxG; i++) header.push('礼包' + i + '每月张数', '礼包' + i + '单张售价');
+    const rows = [header];
+    projects.forEach(function (p) {
+      const row = [accountNameFrom(accounts, p.accountId), p.name];
+      for (let i = 0; i < maxG; i++) {
+        const g = p.series[i];
+        if (!g) row.push('', '', '', '');
+        else row.push(g.name, g.qty, g.used, g.anchor || '');
+      }
+      row.push(p.firstIssue || '', p.validMonths || 1, p.note || '', moneyNum(p.cost), moneyNum(p.cash), copiesOf(p, accountIdsOf(p)[0]), accountIdsOf(p).map(function (id) { const name = accountNameFrom(accounts, id); return name ? name + '×' + copiesOf(p, id) : ''; }).filter(Boolean).join('、'));
+      for (let i = 0; i < maxG; i++) {
+        const g = p.series[i];
+        if (!g) row.push('', '');
+        else row.push(monthStep(g), moneyNum(g.price));
+      }
+      rows.push(row);
+    });
+    return rows;
+  }
+  function buildDetailRows(projects, accounts) {
+    const labels = { used: '已使用', expired: '已过期', wait: '未发放', today: '今天到期', soon: '临期', usable: '可用' };
+    const rows = [['账号', '保单', '礼包', '序号', '状态', '发放日', '发放方式', '到期日', '到期方式', '剩余天数', '使用日', '备注']];
+    projects.forEach(function (p) {
+      const ids = accountIdsOf(p);
+      const runs = ids.length ? ids : [''];
+      runs.forEach(function (id) {
+        const view = id ? viewOf(p, id) : p;
+        (p.series || []).forEach(function (g) {
+          const slot = id ? slotOf(g, id) : g;
+          for (let k = 1; k <= actualQty(view, g); k++) {
+            const st = cardStatus(view, slot, k);
+            const log = (slot.log || []).find(function (x) { return Number(x.k) === k; });
+            const left = (st === 'used' || st === 'wait') ? '' : (daysLeft(expireOf(view, slot, k)) == null ? '' : daysLeft(expireOf(view, slot, k)));
+            rows.push([
+              (id && accountNameFrom(accounts, id)) || accountNameFrom(accounts, p.accountId), p.name, g.name, k, labels[st] || st,
+              issueOf(slot, k, view), isManualIssue(slot, k) ? '手动' : '自动',
+              expireOf(view, slot, k), isManualExpire(slot, k) ? '手动' : '自动',
+              left, log ? log.date : '', p.note || ''
+            ]);
+          }
+        });
+      });
+    });
+    return rows;
+  }
+  function templateRows() {
+    return [
+      ['账号', '名称', '礼包1', '礼包数量', '礼包1已用', '礼包1当前发放', '礼包2', '礼包数量', '礼包2已用', '礼包2当前发放', '首次发放时间', '有效期月', '备注', '每单成本价', '每单可变现价', '礼包1每月张数', '礼包1单张售价', '礼包2每月张数', '礼包2单张售价'],
+      ['我的好车主', '平安行-出行无忧保（SD）1', '100-20话费券', 12, 0, '', '药诊卡', 1, 0, '', todayStr(), 1, '示例，导入前可删', 80, 270, 1, 20, 1, 30]
+    ];
+  }
+  function ensureAccount(name) {
+    let acc = state.accounts.find(function (a) { return a.name === name; });
+    if (!acc) {
+      acc = { id: uid('a'), name: name || '我的好车主', note: '' };
+      state.accounts.push(acc);
+    }
+    return acc;
+  }
+  function giftFromRec(g, anchor, prev) {
+    const perMonth = g.hasMonth ? g.perMonth : (prev ? prev.perMonth : 1);
+    const price = g.hasPrice ? g.price : (prev ? prev.price : 0);
+    return blankGift(g.name, g.qty, g.used, anchor, perMonth, price);
+  }
+  function recordToSeries(rec) {
+    const project = { copies: rec.copies || 1 };
+    return rec.gifts.map(function (g) { return trimGift(project, giftFromRec(g, g.anchor || rec.firstIssue, null)); });
+  }
+  function ownerAccounts(rec) {
+    const items = [];
+    String(rec.owners || '').split(/[、,，;；]/).forEach(function (part) {
+      part = part.trim();
+      if (!part) return;
+      const matched = part.match(/^(.*?)(?:\s*[×xX*]\s*(\d+))\s*$/);
+      const name = (matched ? matched[1] : part).trim();
+      const copies = matched ? Math.max(1, parseInt(matched[2], 10) || 1) : 0;
+      if (name && !items.some(function (x) { return x.name === name; })) items.push({ name: name, copies: copies });
+    });
+    if (!items.length) items.push({ name: rec.account || '我的好车主', copies: 0 });
+    return items.map(function (item) { return { account: ensureAccount(item.name), copies: item.copies }; });
+  }
+  function assignOwners(target, rec) {
+    const rows = ownerAccounts(rec);
+    target.accountIds = rows.map(function (r) { return r.account.id; });
+    target.accountId = target.accountIds[0];
+    const fallback = rec.hasCopies ? rec.copies : (target.copies || rec.copies || 1);
+    const map = {};
+    rows.forEach(function (r) { map[r.account.id] = r.copies || fallback; });
+    target.accountCopies = map;
+    target.copies = map[target.accountId] || fallback;
+  }
+  function applyPolicy(records, mode) {
+    let added = 0, merged = 0;
+    records.forEach(function (rec) {
+      const rows = ownerAccounts(rec);
+      const ids = rows.map(function (r) { return r.account.id; });
+      const existing = state.projects.find(function (p) { return p.name === rec.name && accountIdsOf(p).some(function (id) { return ids.indexOf(id) >= 0; }); });
+      if (!existing || mode === 'add') {
+        const created = {
+          id: uid('p'), accountId: rows[0].account.id, accountIds: ids, name: rec.name, note: rec.note || '',
+          firstIssue: rec.firstIssue || todayStr(), validMonths: rec.validMonths, copies: rec.copies || 1,
+          cost: rec.hasCost ? rec.cost : 0, cash: rec.hasCash ? rec.cash : 0, series: recordToSeries(rec)
+        };
+        assignOwners(created, rec);
+        created.series.forEach(function (g) { trimGift(created, g); });
+        state.projects.push(created);
+        added += 1;
+        return;
+      }
+      if (mode === 'sum') {
+        assignOwners(existing, rec);
+        if (rec.hasCost) existing.cost = rec.cost;
+        if (rec.hasCash) existing.cash = rec.cash;
+        rec.gifts.forEach(function (g) {
+          const hit = existing.series.find(function (s) { return s.name === g.name; });
+          if (!hit) existing.series.push(giftFromRec(g, g.anchor || rec.firstIssue || existing.firstIssue, null));
+          else {
+            hit.qty += g.qty;
+            if (g.hasMonth) hit.perMonth = Math.max(1, Math.min(hit.qty, g.perMonth || 1));
+            if (g.hasPrice) hit.price = g.price;
+          }
+        });
+        merged += 1;
+        return;
+      }
+      assignOwners(existing, rec);
+      existing.note = rec.note || existing.note;
+      existing.firstIssue = rec.firstIssue || existing.firstIssue;
+      existing.validMonths = rec.validMonths;
+      if (rec.hasCost) existing.cost = rec.cost;
+      if (rec.hasCash) existing.cash = rec.cash;
+      existing.series = rec.gifts.map(function (g) {
+        const prev = existing.series.find(function (s) { return s.name === g.name; });
+        const next = giftFromRec(g, g.anchor || existing.firstIssue, prev);
+        if (prev) {
+          next.gid = prev.gid;
+          next.issueOv = prev.issueOv || {};
+          next.expireOv = prev.expireOv || {};
+          next.log = (prev.log || []).filter(function (x) { return x.k <= next.used; });
+        }
+        return trimGift(existing, next);
+      });
+      merged += 1;
+    });
+    return { added: added, merged: merged };
+  }
+  function applyDetail(records) {
+    let n = 0, miss = 0;
+    records.forEach(function (rec) {
+      const acc = state.accounts.find(function (a) { return a.name === rec.account; });
+      const projects = state.projects.filter(function (p) {
+        return p.name === rec.policy && (!acc || accountIdsOf(p).indexOf(acc.id) >= 0);
+      });
+      const p = projects[0];
+      const g = p && p.series.find(function (s) { return s.name === rec.gift; });
+      const id = acc && p && accountIdsOf(p).indexOf(acc.id) >= 0 ? acc.id : (p ? accountIdsOf(p)[0] : '');
+      const view = id ? viewOf(p, id) : p;
+      const slot = id && g ? ensureHolder(g, id, id === accountIdsOf(p)[0]) : g;
+      if (!p || !g || rec.k < 1 || rec.k > actualQty(view, g)) { miss += 1; return; }
+      const key = String(rec.k);
+      if (rec.issueMode === '自动') delete slot.issueOv[key];
+      else if (rec.issue && (rec.issueMode === '手动' || rec.issue !== autoIssue(slot, rec.k, view))) slot.issueOv[key] = rec.issue;
+      const autoExp = (function () {
+        const issue = issueOf(slot, rec.k, view);
+        if (!issue) return '';
+        return addDays(addMonths(issue, Math.max(1, p.validMonths | 0)), -1);
+      })();
+      if (rec.expireMode === '自动') delete slot.expireOv[key];
+      else if (rec.expire && (rec.expireMode === '手动' || rec.expire !== autoExp)) slot.expireOv[key] = rec.expire;
+      mirrorPrimary(p, g);
+      n += 1;
+    });
+    return { n: n, miss: miss };
+  }
+  function applyJson(data, mode) {
+    if (!data || !Array.isArray(data.projects) || !Array.isArray(data.accounts)) throw new Error('不是卡券备份文件');
+    if (mode === 'replace') {
+      state = clone(data);
+      normalize(state);
+      ensure();
+      return;
+    }
+    const incomingAccounts = data.accounts;
+    data.accounts.forEach(function (a) {
+      if (!state.accounts.some(function (x) { return x.name === a.name; })) {
+        const id = a.id && !state.accounts.some(function (x) { return x.id === a.id; }) ? a.id : uid('a');
+        state.accounts.push({ id: id, name: a.name || '未命名账号', note: a.note || '' });
+      }
+    });
+    data.projects.forEach(function (p) {
+      const src = incomingAccounts.find(function (a) { return a.id === p.accountId; });
+      const acc = state.accounts.find(function (a) { return src && a.name === src.name; }) || state.accounts[0];
+      const copy = clone(p);
+      copy.id = uid('p');
+      const ids = accountIdsOf(p).map(function (oldId) {
+        const srcAcc = incomingAccounts.find(function (a) { return a.id === oldId; });
+        const found = state.accounts.find(function (a) { return srcAcc && a.name === srcAcc.name; });
+        return found ? found.id : '';
+      }).filter(Boolean);
+      copy.accountIds = ids.length ? ids : [acc.id];
+      copy.accountId = copy.accountIds[0];
+      state.projects.push(copy);
+    });
+    normalize(state);
+  }
+
+  function parseCsv(text) {
+    text = String(text).replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const sample = text.split('\n').slice(0, 5).join('\n');
+    let delim = ',';
+    if (sample.split(';').length > sample.split(',').length && sample.indexOf(';') >= 0) delim = ';';
+    else if (sample.split('\t').length > sample.split(',').length) delim = '\t';
+    const rows = [];
+    let row = [], cur = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { cur += '"'; i += 1; }
+          else q = false;
+        } else cur += c;
+      } else if (c === '"') q = true;
+      else if (c === delim) { row.push(cur); cur = ''; }
+      else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+      else cur += c;
+    }
+    if (cur.length || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(function (r) { return r.some(function (x) { return String(x).trim(); }); });
+  }
+  function toCsv(rows) {
+    function csvEsc(v) {
+      const s = v == null ? '' : String(v);
+      if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    }
+    return '\uFEFF' + rows.map(function (r) { return r.map(csvEsc).join(','); }).join('\r\n');
+  }
+  function xmlEsc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function colName(i) {
+    let s = '', n = i + 1;
+    while (n) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); }
+    return s;
+  }
+  function sheetXml(rows) {
+    const body = rows.map(function (row, r) {
+      const cells = row.map(function (val, c) {
+        const ref = colName(c) + (r + 1);
+        const v = val == null ? '' : String(val);
+        if (v !== '' && /^-?\d+(\.\d+)?$/.test(v)) return '<c r="' + ref + '"><v>' + v + '</v></c>';
+        return '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xmlEsc(v) + '</t></is></c>';
+      }).join('');
+      return '<row r="' + (r + 1) + '">' + cells + '</row>';
+    }).join('');
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' + body + '</sheetData></worksheet>';
+  }
+  const CRC_TABLE = (function () {
+    const t = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+      t[i] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(bytes) {
+    let c = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 255] ^ (c >>> 8);
+    return (~c) >>> 0;
+  }
+  async function deflateRaw(data) {
+    if (typeof CompressionStream === 'undefined') return null;
+    const stream = new Blob([data]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  async function inflateRaw(data) {
+    const stream = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  async function zipFiles(files) {
+    const enc = new TextEncoder();
+    const parts = [];
+    const central = [];
+    let offset = 0;
+    const now = new Date();
+    const time = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 65535;
+    const date = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 65535;
+    for (let fi = 0; fi < files.length; fi++) {
+      const original = enc.encode(files[fi].text);
+      let payload = original;
+      let method = 0;
+      try {
+        const zipped = await deflateRaw(original);
+        if (zipped && zipped.length < original.length) { payload = zipped; method = 8; }
+      } catch (e) { payload = original; method = 0; }
+      const name = enc.encode(files[fi].name);
+      const crc = crc32(original);
+      const local = new DataView(new ArrayBuffer(30));
+      local.setUint32(0, 0x04034b50, true);
+      local.setUint16(4, 20, true);
+      local.setUint16(8, method, true);
+      local.setUint16(10, time, true);
+      local.setUint16(12, date, true);
+      local.setUint32(14, crc, true);
+      local.setUint32(18, payload.length, true);
+      local.setUint32(22, original.length, true);
+      local.setUint16(26, name.length, true);
+      parts.push(new Uint8Array(local.buffer), name, payload);
+      const cen = new DataView(new ArrayBuffer(46));
+      cen.setUint32(0, 0x02014b50, true);
+      cen.setUint16(4, 20, true);
+      cen.setUint16(6, 20, true);
+      cen.setUint16(10, method, true);
+      cen.setUint16(12, time, true);
+      cen.setUint16(14, date, true);
+      cen.setUint32(16, crc, true);
+      cen.setUint32(20, payload.length, true);
+      cen.setUint32(24, original.length, true);
+      cen.setUint16(28, name.length, true);
+      cen.setUint32(42, offset, true);
+      central.push(new Uint8Array(cen.buffer), name);
+      offset += 30 + name.length + payload.length;
+    }
+    const centralStart = offset;
+    let centralSize = 0;
+    central.forEach(function (p) { parts.push(p); centralSize += p.length; });
+    const eocd = new DataView(new ArrayBuffer(22));
+    eocd.setUint32(0, 0x06054b50, true);
+    eocd.setUint16(8, files.length, true);
+    eocd.setUint16(10, files.length, true);
+    eocd.setUint32(12, centralSize, true);
+    eocd.setUint32(16, centralStart, true);
+    parts.push(new Uint8Array(eocd.buffer));
+    const total = parts.reduce(function (s, p) { return s + p.length; }, 0);
+    const out = new Uint8Array(total);
+    let o = 0;
+    parts.forEach(function (p) { out.set(p, o); o += p.length; });
+    return out;
+  }
+  async function unzip(buf) {
+    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+    const files = {};
+    let p = 0;
+    while (p + 30 <= buf.length && view.getUint32(p, true) === 0x04034b50) {
+      const method = view.getUint16(p + 8, true);
+      const compSize = view.getUint32(p + 18, true);
+      const nameLen = view.getUint16(p + 26, true);
+      const extraLen = view.getUint16(p + 28, true);
+      const name = new TextDecoder().decode(buf.subarray(p + 30, p + 30 + nameLen));
+      const start = p + 30 + nameLen + extraLen;
+      let data = buf.subarray(start, start + compSize);
+      if (method === 8) data = await inflateRaw(data);
+      else if (method !== 0) throw new Error('这个 xlsx 的压缩方式读不了，请另存为 csv');
+      files[name] = new TextDecoder().decode(data);
+      p = start + compSize;
+    }
+    return files;
+  }
+  function colIndex(ref) {
+    const m = /^[A-Z]+/.exec(ref || '');
+    if (!m) return 0;
+    let n = 0;
+    for (let i = 0; i < m[0].length; i++) n = n * 26 + (m[0].charCodeAt(i) - 64);
+    return n - 1;
+  }
+  function parseSheetXml(xml, sst) {
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    return Array.from(doc.getElementsByTagName('row')).map(function (row) {
+      const arr = [];
+      Array.from(row.getElementsByTagName('c')).forEach(function (c) {
+        const idx = colIndex(c.getAttribute('r') || '');
+        const t = c.getAttribute('t');
+        let val = '';
+        if (t === 'inlineStr') val = Array.from(c.getElementsByTagName('t')).map(function (n) { return n.textContent; }).join('');
+        else if (t === 's') {
+          const v = c.getElementsByTagName('v')[0];
+          val = sst[Number(v ? v.textContent : -1)] || '';
+        } else {
+          const v = c.getElementsByTagName('v')[0];
+          val = v ? v.textContent : '';
+        }
+        arr[idx] = val;
+      });
+      const max = arr.length;
+      const out = [];
+      for (let i = 0; i < max; i++) out.push(arr[i] == null ? '' : String(arr[i]));
+      return out;
+    });
+  }
+  async function readXlsxAll(buf) {
+    const files = await unzip(buf);
+    const names = Object.keys(files);
+    let sst = [];
+    const sstName = names.find(function (n) { return /sharedStrings\.xml$/i.test(n); });
+    if (sstName) {
+      const doc = new DOMParser().parseFromString(files[sstName], 'application/xml');
+      sst = Array.from(doc.getElementsByTagName('si')).map(function (si) {
+        return Array.from(si.getElementsByTagName('t')).map(function (t) { return t.textContent; }).join('');
+      });
+    }
+    const sheets = names.filter(function (n) { return /xl\/worksheets\/sheet.*\.xml$/i.test(n); }).sort();
+    if (!sheets.length) throw new Error('没有找到工作表');
+    return sheets.map(function (n) { return parseSheetXml(files[n], sst); });
+  }
+  async function makeXlsx(projects) {
+    const policy = sheetXml(projects.length ? buildPolicyRows(projects, state.accounts) : templateRows());
+    const detail = sheetXml(buildDetailRows(projects, state.accounts));
+    const files = [
+      { name: '[Content_Types].xml', text: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>' },
+      { name: '_rels/.rels', text: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+      { name: 'xl/workbook.xml', text: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="保单" sheetId="1" r:id="rId1"/><sheet name="卡券明细" sheetId="2" r:id="rId2"/></sheets></workbook>' },
+      { name: 'xl/_rels/workbook.xml.rels', text: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/></Relationships>' },
+      { name: 'xl/worksheets/sheet1.xml', text: policy },
+      { name: 'xl/worksheets/sheet2.xml', text: detail }
+    ];
+    return zipFiles(files);
+  }
+  function download(filename, blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+  }
+  function fileStamp() { return todayStr(); }
+
+  function previewTable(rows) {
+    const body = rows.map(function (r) {
+      return '<tr>' + r.map(function (c) { return '<td>' + esc(c) + '</td>'; }).join('') + '</tr>';
+    }).join('');
+    return '<div class="preview"><table>' + body + '</table></div>';
+  }
+  async function openImport(parsed) {
+    let html = '<p>识别到 ' + parsed.records.length + (parsed.kind === 'detail' ? ' 张卡券日期' : ' 条保单') + '。</p>';
+    if (parsed.kind === 'policy') {
+      html += '<div class="field"><label><input type="radio" name="mode" value="overwrite" checked> 覆盖同名保单（同账号 + 同名，用表格里的张数、已用、当前发放替换，手动改期尽量保留）</label>' +
+        '<label><input type="radio" name="mode" value="sum"> 合并张数（与手机版相同：同名礼包张数相加）</label>' +
+        '<label><input type="radio" name="mode" value="add"> 全部作为新保单追加</label></div>';
+      if (parsed.detail) html += '<p class="muted">这个文件还有「卡券明细」，导入后会接着更新 ' + parsed.detail.records.length + ' 张的发放日 / 到期日。</p>';
+      html += '<ul>' + parsed.records.slice(0, 12).map(function (r) {
+        return '<li>' + esc(r.account) + ' / ' + esc(r.name) + ' / ' + esc(r.gifts.map(function (g) { return g.name + ' ' + g.qty + '张'; }).join('、') || '无礼包') + '</li>';
+      }).join('') + '</ul>';
+    } else {
+      html += '<p class="muted">只会更新已经存在的保单和礼包上的发放日、到期日，不会新建保单。</p>';
+    }
+    html += previewTable(parsed.previewRows);
+    const ans = await openModal({ title: '导入预览', text: '确认无误后再写入本机数据。', html: html, okText: '确认导入' });
+    if (!ans) return;
+    if (parsed.kind === 'detail') {
+      const res = applyDetail(parsed.records);
+      mutate();
+      toast('已更新 ' + res.n + ' 张' + (res.miss ? '，' + res.miss + ' 行没对上' : ''));
+      return;
+    }
+    const mode = (ans && ans.mode) || 'overwrite';
+    const res = applyPolicy(parsed.records, mode);
+    let extra = '';
+    if (parsed.detail) {
+      const dres = applyDetail(parsed.detail.records);
+      extra = '，并更新 ' + dres.n + ' 张日期';
+    }
+    mutate();
+    toast('新增 ' + res.added + ' 条，合并 ' + res.merged + ' 条' + extra);
+  }
+
+  function issueForExpire(exp) { return addMonths(addDays(exp, 1), -1); }
+  function loadSample() {
+    state.projects = state.projects.filter(function (p) { return String(p.note || '').indexOf('示例：') !== 0; });
+    const acc = state.currentAccountId !== 'all' ? state.currentAccountId : state.accounts[0].id;
+    const today = todayStr();
+    function add(name, note, first, gifts, cost, cash) {
+      state.projects.push({
+        id: uid('p'), accountId: acc, name: name, note: note, firstIssue: first, validMonths: 1,
+        cost: cost || 0, cash: cash || 0,
+        series: gifts.map(function (g) { return blankGift(g.name, g.qty, 0, first, g.perMonth || 1, g.price || 0); })
+      });
+    }
+    add('平安行-出行无忧保（SD）1', '示例：今天到期', issueForExpire(today), [{ name: '100-20话费券', qty: 12, price: 20 }, { name: '药诊卡', qty: 1, price: 30 }], 80, 270);
+    add('平安行-和安康（维保企康版）', '示例：3天后到期', issueForExpire(addDays(today, 3)), [{ name: '31-30充电券', qty: 6, perMonth: 2, price: 15 }], 40, 90);
+    add('平安出现无忧', '示例：已过期', addMonths(today, -4), [{ name: '51-50电费券', qty: 3, price: 10 }], 20, 30);
+    add('平安行全家出行险2.0（湖南）1', '示例：已使用，下一张可用', addMonths(today, -1), [{ name: '31-30充电券', qty: 4, price: 12 }], 30, 48);
+    const last = state.projects[state.projects.length - 1];
+    useCurrent(last.series[0], today);
+    state.currentAccountId = acc;
+  }
+
+  function parseHash() {
+    const parts = decodeURIComponent(location.hash || '#/').replace(/^#/, '').split('/').filter(Boolean);
+    if (parts[0] === 'p' && parts[1]) return { name: 'detail', id: parts[1] };
+    if (parts[0] === 'edit') return { name: 'edit', id: parts[1] || 'new', key: parts[1] || 'new' };
+    if (parts[0] === 'accounts') return { name: 'accounts' };
+    if (parts[0] === 'data') return { name: 'data' };
+    return { name: 'home' };
+  }
+  function go(hash) {
+    if (location.hash === hash) render();
+    else location.hash = hash;
+  }
+  function render() {
+    ensure();
+    const route = parseHash();
+    const app = document.getElementById('app');
+    const focusQ = document.activeElement && document.activeElement.id === 'q';
+    const qPos = focusQ ? document.activeElement.selectionStart : 0;
+    if (route.name === 'edit') {
+      if (!editDraft || editDraft.key !== route.key) editDraft = makeDraft(route.id);
+      app.innerHTML = pageEdit();
+      return;
+    }
+    editDraft = null;
+    if (route.name === 'detail') app.innerHTML = pageDetail(route.id);
+    else if (route.name === 'accounts') app.innerHTML = pageAccounts();
+    else if (route.name === 'data') app.innerHTML = pageData();
+    else app.innerHTML = pageHome();
+    if (scrollHome && route.name === 'home') {
+      scrollHome = false;
+      window.scrollTo(0, 0);
+      requestAnimationFrame(function () { window.scrollTo(0, 0); });
+    }
+    if (focusQ) {
+      const q = document.getElementById('q');
+      if (q) { q.focus(); q.selectionStart = q.selectionEnd = qPos; }
+    }
+  }
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 2800);
+  }
+  function openModal(opts) {
+    document.getElementById('modalTitle').textContent = opts.title || '';
+    document.getElementById('modalText').textContent = opts.text || '';
+    document.getElementById('modalBody').innerHTML = opts.html || '';
+    const ok = document.getElementById('modalOk');
+    ok.textContent = opts.okText || '确定';
+    ok.className = opts.danger ? 'btn danger' : 'btn primary';
+    document.getElementById('modalCancel').hidden = !!opts.hideCancel;
+    document.getElementById('modal').hidden = false;
+    const input = document.querySelector('#modalBody input, #modalBody textarea, #modalBody select');
+    if (input) setTimeout(function () { input.focus(); }, 30);
+    return new Promise(function (resolve) { modalCb = resolve; });
+  }
+  function closeModal(val) {
+    document.getElementById('modal').hidden = true;
+    const cb = modalCb;
+    modalCb = null;
+    if (cb) cb(val);
+  }
+
+  async function onAct(act, el) {
+    const id = el.dataset.id;
+    const gi = el.dataset.gi;
+    if (act === 'go') return go(el.dataset.hash || '#/');
+    if (act === 'theme') {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('hcz-theme', next); } catch (err) {}
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', next === 'dark' ? '#101816' : '#0b6b43');
+      render();
+      return;
+    }
+    if (act === 'modal-cancel') return closeModal(null);
+    if (act === 'clear-date') return closeModal({ auto: true });
+    if (act === 'filter') { ui.filter = el.dataset.f; render(); return; }
+    if (act === 'set-acc') {
+      state.currentAccountId = id;
+      persist();
+      if (parseHash().name === 'accounts') toast('已切换到「' + (id === 'all' ? '全部账号' : accountName(id)) + '」');
+      go('#/');
+      return;
+    }
+    if (act === 'add') return go('#/edit/new');
+    if (act === 'open') return go('#/p/' + id);
+    if (act === 'edit') return go('#/edit/' + id);
+    if (act === 'cancel-edit') {
+      const back = editDraft && editDraft.id ? '#/p/' + editDraft.id : '#/';
+      editDraft = null;
+      return go(back);
+    }
+    if (act === 'fill-tpl') { fillFromTemplate(id); return; }
+    if (act === 'add-gift') {
+      editDraft = readDraft();
+      editDraft.gifts.push(emptyGift());
+      render();
+      return;
+    }
+    if (act === 'del-gift') {
+      editDraft = readDraft();
+      editDraft.gifts.splice(Number(gi), 1);
+      if (!editDraft.gifts.length) editDraft.gifts.push(emptyGift());
+      render();
+      return;
+    }
+    if (act === 'create-acc') {
+      const name = document.getElementById('f-new-acc').value.trim();
+      if (!name) return toast('请输入账号名称');
+      if (state.accounts.some(function (a) { return a.name === name; })) return toast('已有同名账号');
+      const a = { id: uid('a'), name: name, note: '' };
+      state.accounts.push(a);
+      editDraft = readDraft();
+      if (editDraft.accountIds.indexOf(a.id) < 0) editDraft.accountIds.push(a.id);
+      editDraft.accountCopies = editDraft.accountCopies || {};
+      if (!editDraft.accountCopies[a.id]) editDraft.accountCopies[a.id] = 1;
+      editDraft.accountId = editDraft.accountIds[0] || a.id;
+      editDraft.copies = editDraft.accountCopies[editDraft.accountId] || 1;
+      persist({ skipSync: true });
+      render();
+      toast('已新建 ' + name);
+      return;
+    }
+    if (act === 'save') return saveDraft();
+    if (act === 'del-project') {
+      const p = state.projects.find(function (x) { return x.id === id; });
+      if (!p) return;
+      const ok = await openModal({ title: '删除这个保险单？', text: '「' + p.name + '」和它的礼包序列会一并删除，且无法恢复。', danger: true, okText: '删除' });
+      if (!ok) return;
+      state.projects = state.projects.filter(function (x) { return x.id !== id; });
+      persist();
+      toast('已删除');
+      go('#/');
+      return;
+    }
+    if (act === 'use') {
+      const hit = findGift(id, gi);
+      if (!hit) return;
+      const acted = actedSlot(hit, el);
+      const k = acted.slot.used + 1;
+      const step = actualStep(acted.view, hit.g);
+      const after = acted.slot.used + 1;
+      const hint = after % step === 0
+        ? '这个月的张数用完，下一张发放日会顺延。'
+        : '这个月还可以再用 ' + (step - (after % step)) + ' 张，发放日先不变。';
+      const who = acted.acc ? accountName(acted.acc) + '的' : '';
+      const ok = await openModal({ title: '确认使用这一张？', text: '将使用' + who + '「' + hit.g.name + '」第 ' + k + ' 张。' + hint, okText: '使用这一张' });
+      if (!ok) return;
+      const next = useCurrent(acted.slot, null, acted.view);
+      mirrorPrimary(hit.p, hit.g);
+      mutate();
+      toast(next ? ('已使用，下一张发放日 ' + next) : '这一种已全部用完');
+      return;
+    }
+    if (act === 'undo') {
+      const hit = findGift(id, gi);
+      if (!hit) return;
+      const acted = actedSlot(hit, el);
+      if (acted.slot.used <= 0) return;
+      const ok = await openModal({ title: '撤销这次使用？', text: '撤销第 ' + acted.slot.used + ' 张后，这一张恢复可用，发放日回到原来的日期。', okText: '撤销' });
+      if (!ok) return;
+      const anchor = undoLast(acted.slot);
+      mirrorPrimary(hit.p, hit.g);
+      mutate();
+      toast('已撤销，当前发放 ' + (anchor || '—'));
+      return;
+    }
+    if (act === 'edit-issue' || act === 'edit-expire') {
+      const hit = findGift(id, gi);
+      if (!hit) return;
+      const acted = actedSlot(hit, el);
+      const k = Number(el.dataset.k);
+      const field = act === 'edit-issue' ? 'issue' : 'expire';
+      const current = field === 'issue' ? issueOf(acted.slot, k, acted.view) : expireOf(acted.view, acted.slot, k);
+      const manual = field === 'issue' ? isManualIssue(acted.slot, k) : isManualExpire(acted.slot, k);
+      const ans = await openModal({
+        title: '第 ' + k + ' 张' + (field === 'issue' ? '发放日' : '到期日'),
+        text: manual ? '当前是手动日期。恢复自动后按发放规则重算。' : '保存后这一张改为手动，不再跟着自动规则走。',
+        html: '<label class="field">日期<input type="date" value="' + esc(current || '') + '"></label>' +
+          (manual ? '<button type="button" class="btn ghost" data-act="clear-date">恢复自动计算</button>' : '')
+      });
+      if (!ans) return;
+      const key = String(k);
+      if (ans.auto) {
+        if (field === 'issue') delete acted.slot.issueOv[key];
+        else delete acted.slot.expireOv[key];
+        mirrorPrimary(hit.p, hit.g);
+        mutate();
+        toast('已恢复自动计算');
+        return;
+      }
+      const date = normalizeDate(ans.date);
+      if (!date) return toast('请选择日期');
+      if (field === 'issue') acted.slot.issueOv[key] = date;
+      else acted.slot.expireOv[key] = date;
+      mirrorPrimary(hit.p, hit.g);
+      mutate();
+      toast('第 ' + k + ' 张' + (field === 'issue' ? '发放日' : '到期日') + '已改为 ' + date);
+      return;
+    }
+    if (act === 'clear-card') {
+      const hit = findGift(id, gi);
+      if (!hit) return;
+      const acted = actedSlot(hit, el);
+      const key = String(el.dataset.k);
+      delete acted.slot.issueOv[key];
+      delete acted.slot.expireOv[key];
+      mirrorPrimary(hit.p, hit.g);
+      mutate();
+      toast('这张已恢复按有效期自动计算');
+      return;
+    }
+    if (act === 'acc-add') {
+      const input = document.getElementById('new-acc');
+      const name = input.value.trim();
+      if (!name) return toast('请输入账号名称');
+      if (state.accounts.some(function (a) { return a.name === name; })) return toast('已有同名账号');
+      const a = { id: uid('a'), name: name, note: '' };
+      state.accounts.push(a);
+      state.currentAccountId = a.id;
+      mutate();
+      toast('已新建 ' + name);
+      return;
+    }
+    if (act === 'acc-rename') {
+      const name = (document.querySelector('[data-acc-name="' + id + '"]') || {}).value || '';
+      const note = (document.querySelector('[data-acc-note="' + id + '"]') || {}).value || '';
+      const a = state.accounts.find(function (x) { return x.id === id; });
+      if (!a) return;
+      if (!name.trim()) return toast('请输入账号名称');
+      if (state.accounts.some(function (x) { return x.id !== id && x.name === name.trim(); })) return toast('已有同名账号');
+      a.name = name.trim();
+      a.note = note.trim();
+      mutate();
+      toast('已保存');
+      return;
+    }
+    if (act === 'acc-del') {
+      if (state.accounts.length <= 1) return toast('至少要保留一个账号');
+      const a = state.accounts.find(function (x) { return x.id === id; });
+      const only = state.projects.filter(function (p) { return accountIdsOf(p).length === 1 && accountIdsOf(p)[0] === id; }).length;
+      const shared = state.projects.filter(function (p) { return accountIdsOf(p).indexOf(id) >= 0 && accountIdsOf(p).length > 1; }).length;
+      const ok = await openModal({ title: '删除账号「' + (a ? a.name : '') + '」？', text: '只属于它的 ' + only + ' 个保单会删除。' + (shared ? '另外 ' + shared + ' 个和其他账号共用的保单会保留，只去掉这个账号。' : ''), danger: true, okText: '删除' });
+      if (!ok) return;
+      state.accounts = state.accounts.filter(function (x) { return x.id !== id; });
+      state.projects.forEach(function (p) {
+        p.accountIds = accountIdsOf(p).filter(function (x) { return x !== id; });
+        p.accountId = p.accountIds[0] || '';
+        if (p.accountCopies) delete p.accountCopies[id];
+        p.copies = (p.accountCopies && p.accountCopies[p.accountId]) || p.copies || 1;
+        (p.series || []).forEach(function (g) { trimGift(p, g); });
+      });
+      state.projects = state.projects.filter(function (p) { return accountIdsOf(p).length; });
+      if (state.currentAccountId === id) state.currentAccountId = state.accounts[0].id;
+      mutate();
+      toast('已删除账号');
+      return;
+    }
+    if (act === 'sample') {
+      const ok = await openModal({ title: '填入示例保单？', text: '会先去掉备注以「示例：」开头的保单，再按今天的日期生成今天到期、临期、已过期和已使用的例子。', okText: '填入' });
+      if (!ok) return;
+      loadSample();
+      ui.filter = 'all';
+      persist();
+      toast('已填入示例');
+      go('#/');
+      return;
+    }
+    if (act === 'clear-all') {
+      const ok = await openModal({ title: '清空全部数据？', text: '本机保单、账号和同步写入都会回到只剩一个空账号。' + (cloudCfg() ? '已开启云端同步，清空也会覆盖云端备份。' : '') + '清掉之前请先下载 JSON。', danger: true, okText: '清空' });
+      if (!ok) return;
+      state = bootstrap();
+      mutate();
+      toast('已清空');
+      return;
+    }
+    if (act === 'export-json') {
+      download('好车主卡券-' + fileStamp() + '.json', new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));
+      toast('已导出 JSON');
+      return;
+    }
+    if (act === 'copy-json') {
+      await navigator.clipboard.writeText(JSON.stringify(state));
+      toast('已复制，可粘贴到另一台设备');
+      return;
+    }
+    if (act === 'paste-json') {
+      const text = document.getElementById('paste').value.trim();
+      if (!text) return toast('请先粘贴 JSON');
+      let data;
+      try { data = JSON.parse(text); } catch (e) { return toast('JSON 格式不对'); }
+      await restoreJson(data);
+      return;
+    }
+    if (act === 'export-csv') {
+      if (!state.projects.length) return toast('还没有保单，先添加或导入再导出');
+      download('好车主卡券-' + fileStamp() + '.csv', new Blob([toCsv(buildPolicyRows(state.projects, state.accounts))], { type: 'text/csv;charset=utf-8' }));
+      toast('已导出 csv');
+      return;
+    }
+    if (act === 'export-xlsx') {
+      if (!state.projects.length) return toast('还没有保单，先添加或导入再导出');
+      const bytes = await makeXlsx(state.projects);
+      download('好车主卡券-' + fileStamp() + '.xlsx', new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      toast('已导出 xlsx');
+      return;
+    }
+    if (act === 'template') {
+      const bytes = await makeXlsx([]);
+      download('好车主卡券-导入模板.xlsx', new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      toast('已下载模板');
+      return;
+    }
+    if (act === 'pick-file') {
+      document.getElementById('file').dataset.kind = el.dataset.kind || '';
+      document.getElementById('file').click();
+      return;
+    }
+    if (act === 'cloud-on') {
+      const ans = await openModal({
+        title: '开启云端同步',
+        text: '粘贴只带 Gist 权限的 GitHub 令牌。当前这台设备上的数据会上传成私密 Gist。',
+        html: '<label class="field">GitHub 令牌<input id="cloud-token" type="password" autocomplete="off" placeholder="ghp_ 或 github_pat_"></label>',
+        okText: '上传'
+      });
+      if (!ans) return;
+      const token = (document.getElementById('cloud-token') || {}).value || '';
+      try { await enableCloud(token); }
+      catch (e) { setCloudStatus(cloudErr(e)); toast(cloudStatus); }
+      return;
+    }
+    if (act === 'cloud-use') {
+      const ans = await openModal({
+        title: '填入同步码',
+        text: '把已经开启云端同步的设备上复制的同步码粘贴到这里。',
+        html: '<textarea id="cloud-code" class="code" placeholder="hcz1. 开头的同步码"></textarea>',
+        okText: '绑定'
+      });
+      if (!ans) return;
+      const raw = (document.getElementById('cloud-code') || {}).value || '';
+      try { await useCloudCode(raw); }
+      catch (e) { setCloudStatus(cloudErr(e)); toast(cloudStatus); }
+      return;
+    }
+    if (act === 'cloud-copy') {
+      const cfg = cloudCfg();
+      if (!cfg) return toast('还没有开启云端同步');
+      const code = packSyncCode(cfg);
+      try { await navigator.clipboard.writeText(code); toast('已复制同步码'); }
+      catch (e) {
+        await openModal({ title: '同步码', text: '请手动复制下面的同步码。', html: '<textarea class="code" readonly>' + esc(code) + '</textarea>', okText: '好', hideCancel: true });
+      }
+      return;
+    }
+    if (act === 'cloud-now') {
+      if (!cloudCfg()) return toast('还没有开启云端同步');
+      try { await reconcileCloud(); toast(cloudStatus); }
+      catch (e) { setCloudStatus(cloudErr(e)); toast(cloudStatus); }
+      return;
+    }
+    if (act === 'cloud-off') {
+      const ans = await openModal({ title: '停止本机云端同步？', text: '这台浏览器不再上传或下载。云端备份还在，其他设备不受影响。', okText: '停止' });
+      if (!ans) return;
+      localStorage.removeItem(CLOUD_KEY);
+      setCloudStatus('未开启云端同步');
+      render();
+      toast('已停止本机同步');
+      return;
+    }
+    if (act === 'bind-sync') return bindSync(false);
+    if (act === 'save-sync') return bindSync(true);
+    if (act === 'read-sync') {
+      if (!syncHandle) return toast('还没有绑定同步文件');
+      await reconcileSync();
+      render();
+      toast(syncStatus);
+    }
+  }
+
+  async function restoreJson(data) {
+    const ans = await openModal({
+      title: '还原 JSON 备份',
+      text: '文件里有 ' + (data.accounts || []).length + ' 个账号、' + (data.projects || []).length + ' 个保单。',
+      html: '<label><input type="radio" name="mode" value="replace" checked> 用备份替换本机全部数据</label><br><label><input type="radio" name="mode" value="merge"> 追加到现有数据（账号按名称合并）</label>',
+      okText: '还原'
+    });
+    if (!ans) return;
+    const mode = (document.querySelector('#modal input[name=mode]:checked') || {}).value || 'replace';
+    applyJson(data, mode);
+    persist();
+    toast(mode === 'replace' ? '已用备份替换本机数据' : '已并入备份');
+    go('#/');
+  }
+
+  document.getElementById('modalOk').addEventListener('click', function () {
+    const date = document.querySelector('#modalBody input[type=date]');
+    const mode = document.querySelector('#modalBody input[name=mode]:checked');
+    if (date) {
+      if (!date.value) { toast('请选择日期'); return; }
+      closeModal({ date: date.value });
+      return;
+    }
+    closeModal(mode ? { mode: mode.value } : true);
+  });
+  document.getElementById('modalCancel').addEventListener('click', function () { closeModal(null); });
+
+  document.body.addEventListener('click', function (e) {
+    const node = e.target.nodeType === 1 ? e.target : e.target.parentElement;
+    const el = node && node.closest('[data-act]');
+    if (!el) return;
+    onAct(el.dataset.act, el).catch(function (err) {
+      console.error(err);
+      toast(err && err.message ? err.message : '操作失败');
+    });
+  });
+  document.body.addEventListener('input', function (e) {
+    if (e.target.id === 'q') {
+      ui.q = e.target.value;
+      const list = document.getElementById('list');
+      if (list) list.innerHTML = listHTML();
+      return;
+    }
+    if (document.getElementById('f-copy-hint') && (e.target.classList.contains('acc-copies') || (e.target.closest && e.target.closest('#giftBox')) || e.target.id === 'f-cost' || e.target.id === 'f-cash')) refreshDraftPreview();
+  });
+  function refreshDraftPreview() {
+    const hint = document.getElementById('f-copy-hint');
+    const profit = document.getElementById('f-profit');
+    if (!hint && !profit) return;
+    const map = {};
+    document.querySelectorAll('#f-accs input[type="checkbox"]:checked').forEach(function (box) {
+      const n = box.closest('.acc-row').querySelector('.acc-copies');
+      map[box.value] = Math.max(1, parseInt(n && n.value, 10) || 1);
+    });
+    const gifts = [];
+    document.querySelectorAll('#giftBox .gift-edit').forEach(function (row) {
+      gifts.push({
+        name: row.querySelector('.g-name').value,
+        qty: rawInt(row.querySelector('.g-qty').value),
+        perMonth: rawInt(row.querySelector('.g-month').value)
+      });
+    });
+    if (hint) hint.textContent = copyHintText(map, gifts);
+    const cost = document.getElementById('f-cost');
+    const cash = document.getElementById('f-cash');
+    if (profit && cost && cash) {
+      const copies = Object.keys(map).reduce(function (n, id) { return n + map[id]; }, 0) || 1;
+      const unit = roundMoney(moneyNum(cash.value) - moneyNum(cost.value));
+      profit.textContent = '总利润 ' + yuan(roundMoney(unit * copies)) + '（一份利润 ' + yuan(unit) + ' × 各账号合计 ' + copies + ' 份）';
+    }
+  }
+  document.body.addEventListener('change', function (e) {
+    const el = e.target;
+    if (el.closest && el.closest('#f-accs') && el.type === 'checkbox') {
+      const num = el.closest('.acc-row').querySelector('.acc-copies');
+      if (num) num.disabled = !el.checked;
+      refreshDraftPreview();
+      return;
+    }
+    if (el.dataset.act === 'anchor') {
+      const hit = findGift(el.dataset.id, el.dataset.gi);
+      const date = normalizeDate(el.value);
+      if (!hit || !date) { toast('请选择当前发放日'); render(); return; }
+      const acted = actedSlot(hit, el);
+      acted.slot.anchor = date;
+      mirrorPrimary(hit.p, hit.g);
+      mutate();
+      return;
+    }
+    if (el.dataset.act === 'valid') {
+      const p = state.projects.find(function (x) { return x.id === el.dataset.id; });
+      const n = Math.max(1, parseInt(el.value, 10) || 1);
+      if (!p) return;
+      p.validMonths = n;
+      mutate();
+      toast('已记下 ' + n + ' 个月。每张卡券仍从自己的发放日起一个月到期');
+      return;
+    }
+    if (el.dataset.act === 'first') {
+      const p = state.projects.find(function (x) { return x.id === el.dataset.id; });
+      const date = normalizeDate(el.value);
+      if (!p || !date) { toast('日期无效'); render(); return; }
+      const old = p.firstIssue;
+      p.firstIssue = date;
+      p.series.forEach(function (g) {
+        const ids = accountIdsOf(p);
+        if (!ids.length) {
+          if (g.used === 0 && (!g.anchor || g.anchor === old)) g.anchor = date;
+          return;
+        }
+        ids.forEach(function (id) {
+          const h = ensureHolder(g, id, false);
+          if ((h.used | 0) === 0 && (!h.anchor || h.anchor === old)) h.anchor = date;
+        });
+        mirrorPrimary(p, g);
+      });
+      mutate();
+      return;
+    }
+  });
+  document.getElementById('file').addEventListener('change', async function (e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const name = file.name.toLowerCase();
+      if (name.endsWith('.json') || e.target.dataset.kind === 'json') {
+        const data = JSON.parse(await file.text());
+        await restoreJson(data);
+        return;
+      }
+      if (name.endsWith('.csv') || name.endsWith('.txt')) {
+        await openImport(parseTable(parseCsv(await file.text())));
+        return;
+      }
+      const sheets = await readXlsxAll(new Uint8Array(await file.arrayBuffer()));
+      let policy = null, detail = null, lastErr = null;
+      sheets.forEach(function (rows) {
+        try {
+          const parsed = parseTable(rows);
+          if (parsed.kind === 'policy' && !policy) policy = parsed;
+          else if (parsed.kind === 'detail' && !detail) detail = parsed;
+        } catch (err) { lastErr = err; }
+      });
+      if (policy && detail) policy.detail = detail;
+      if (policy) await openImport(policy);
+      else if (detail) await openImport(detail);
+      else throw lastErr || new Error('没读到有效数据，请确认表头是「名称 / 礼包1 / 礼包数量…」');
+    } catch (err) {
+      console.error(err);
+      toast(err.message || '表格读取失败');
+    }
+  });
+
+  const CLOUD_KEY = 'hcz-cloud-v1';
+  function cloudCfg() {
+    try {
+      const o = JSON.parse(localStorage.getItem(CLOUD_KEY) || 'null');
+      if (!o || !o.id || !o.token) return null;
+      return o;
+    } catch (e) { return null; }
+  }
+  function saveCloudCfg(cfg) {
+    localStorage.setItem(CLOUD_KEY, JSON.stringify({ id: cfg.id, token: cfg.token }));
+  }
+  function b64url(bytes) {
+    let s = '';
+    const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+  }
+  function b64urlDecode(s) {
+    s = String(s || '').replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    const bin = atob(s);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function packSyncCode(cfg) {
+    return 'hcz1.' + b64url(new TextEncoder().encode(JSON.stringify({ id: cfg.id, token: cfg.token })));
+  }
+  function parseSyncCode(text) {
+    const s = String(text || '').trim();
+    if (s.indexOf('hcz1.') !== 0) throw new Error('同步码不对');
+    const o = JSON.parse(new TextDecoder().decode(b64urlDecode(s.slice(5))));
+    if (!o || !o.id || !o.token) throw new Error('同步码不完整');
+    return { id: String(o.id), token: String(o.token) };
+  }
+  function pickCloud(local, remote, hasLocal) {
+    if (!remote) return 'same';
+    if (!hasLocal) return 'pull';
+    const rt = remote.updatedAt || '';
+    const lt = (local && local.updatedAt) || '';
+    if (rt > lt) return 'pull';
+    if (lt > rt) return 'push';
+    return 'same';
+  }
+  function setCloudStatus(msg) {
+    cloudStatus = msg;
+    const el = document.getElementById('cloud-status');
+    if (el) el.textContent = msg;
+  }
+  function cloudErr(e) {
+    const m = (e && e.message) || '云端同步失败';
+    if (/Bad credentials|Unauthorized/i.test(m)) return '令牌无效，请重新生成并勾选 Gist 权限';
+    if (/Not Found/i.test(m)) return '找不到云端备份，请检查同步码';
+    if (/rate limit/i.test(m)) return 'GitHub 访问太频繁，稍后再试';
+    if (/Failed to fetch|NetworkError|network/i.test(m)) return '连不上 GitHub，本机数据仍在';
+    return m;
+  }
+  async function ghFetch(token, path, method, body) {
+    const headers = {
+      Accept: 'application/vnd.github+json',
+      Authorization: 'Bearer ' + token,
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+    if (body) headers['Content-Type'] = 'application/json';
+    const res = await fetch('https://api.github.com' + path, {
+      method: method || 'GET',
+      headers: headers,
+      body: body ? JSON.stringify(body) : undefined
+    });
+    const text = await res.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (err) { data = { message: text.slice(0, 180) }; }
+    if (!res.ok) throw new Error((data && data.message) || ('HTTP ' + res.status));
+    return data;
+  }
+  async function fetchRemote(cfg) {
+    const gist = await ghFetch(cfg.token, '/gists/' + encodeURIComponent(cfg.id), 'GET');
+    const file = gist.files && gist.files['hcz.json'];
+    if (!file) throw new Error('云端备份里没有 hcz.json');
+    let text = file.content || '';
+    if (file.truncated && file.raw_url) {
+      const res = await fetch(file.raw_url, { headers: { Authorization: 'Bearer ' + cfg.token } });
+      if (!res.ok) throw new Error('云端备份读取不完整');
+      text = await res.text();
+    }
+    const data = JSON.parse(text);
+    if (!data || !Array.isArray(data.projects) || !Array.isArray(data.accounts)) throw new Error('云端内容不是卡券备份');
+    return data;
+  }
+  async function pushCloud(cfg) {
+    cfg = cfg || cloudCfg();
+    if (!cfg) return;
+    await ghFetch(cfg.token, '/gists/' + encodeURIComponent(cfg.id), 'PATCH', {
+      files: { 'hcz.json': { content: JSON.stringify(state) } }
+    });
+    setCloudStatus('已上传 ' + (state.updatedAt || ''));
+  }
+  function adoptCloud(data) {
+    state = data;
+    normalize(state);
+    ensure();
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { toast('浏览器无法保存云端数据'); }
+  }
+  async function reconcileCloud() {
+    const cfg = cloudCfg();
+    if (!cfg) return 'off';
+    const remote = await fetchRemote(cfg);
+    const action = pickCloud(state, remote, !!localStorage.getItem(KEY));
+    if (action === 'pull') {
+      adoptCloud(remote);
+      render();
+      setCloudStatus('已采用云端较新数据');
+      return 'pull';
+    }
+    if (action === 'push') {
+      await pushCloud(cfg);
+      return 'push';
+    }
+    setCloudStatus('云端已是最新');
+    return 'same';
+  }
+  async function enableCloud(token) {
+    token = String(token || '').trim();
+    if (!token) { toast('请粘贴 GitHub 令牌'); return; }
+    setCloudStatus('正在上传');
+    const gist = await ghFetch(token, '/gists', 'POST', {
+      description: '好车主卡券',
+      public: false,
+      files: { 'hcz.json': { content: JSON.stringify(state) } }
+    });
+    if (!gist || !gist.id) throw new Error('没有拿到云端编号');
+    saveCloudCfg({ id: gist.id, token: token });
+    setCloudStatus('已上传 ' + (state.updatedAt || ''));
+    render();
+    const code = packSyncCode(cloudCfg());
+    await openModal({
+      title: '同步码',
+      text: '复制到其他设备的「填入同步码」。里面有访问令牌，不要发给别人。',
+      html: '<textarea class="code" id="cloud-code" readonly>' + esc(code) + '</textarea>',
+      okText: '复制',
+      hideCancel: true
+    });
+    try { await navigator.clipboard.writeText(code); toast('已复制同步码'); }
+    catch (e) { toast('请手动复制同步码'); }
+  }
+  async function useCloudCode(raw) {
+    const cfg = parseSyncCode(raw);
+    const remote = await fetchRemote(cfg);
+    let action = pickCloud(state, remote, !!localStorage.getItem(KEY));
+    if (action === 'push' && state.projects.length && remote.projects.length) {
+      const ans = await openModal({
+        title: '两边都有数据',
+        text: '本机保存时间比云端新。',
+        html: '<label><input type="radio" name="mode" value="pull" checked> 用云端覆盖本机</label><br><label><input type="radio" name="mode" value="push"> 用本机覆盖云端</label>',
+        okText: '继续'
+      });
+      if (!ans) return;
+      action = ans.mode || 'pull';
+    }
+    saveCloudCfg(cfg);
+    if (action === 'pull') {
+      adoptCloud(remote);
+      render();
+      setCloudStatus('已采用云端数据');
+      toast('已从云端取回');
+      return;
+    }
+    if (action === 'push') {
+      await pushCloud(cfg);
+      render();
+      toast('已把本机数据上传');
+      return;
+    }
+    render();
+    setCloudStatus('云端已是最新');
+    toast('已绑定云端');
+  }
+
+  let syncTimer = 0;
+  let cloudTask = Promise.resolve();
+  function scheduleSync() {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(function () {
+      writeSyncFile().catch(function () {});
+      if (!cloudCfg()) return;
+      cloudTask = cloudTask.then(function () { return pushCloud(); }).catch(function (e) {
+        setCloudStatus(cloudErr(e));
+        toast(cloudStatus);
+      });
+    }, 500);
+  }
+  function idbStore(mode) {
+    return new Promise(function (resolve, reject) {
+      const req = indexedDB.open('hcz-cards', 1);
+      req.onupgradeneeded = function () { req.result.createObjectStore('kv'); };
+      req.onerror = function () { reject(req.error); };
+      req.onsuccess = function () { resolve(req.result.transaction('kv', mode).objectStore('kv')); };
+    });
+  }
+  async function idbGet(key) {
+    const store = await idbStore('readonly');
+    return new Promise(function (resolve, reject) {
+      const r = store.get(key);
+      r.onsuccess = function () { resolve(r.result); };
+      r.onerror = function () { reject(r.error); };
+    });
+  }
+  async function idbSet(key, value) {
+    const store = await idbStore('readwrite');
+    return new Promise(function (resolve, reject) {
+      const r = store.put(value, key);
+      r.onsuccess = function () { resolve(); };
+      r.onerror = function () { reject(r.error); };
+    });
+  }
+  async function writeSyncFile() {
+    if (!syncHandle) return;
+    const writable = await syncHandle.createWritable();
+    await writable.write(JSON.stringify(state, null, 2));
+    await writable.close();
+    syncStatus = '已写入同步文件 ' + (state.updatedAt || '');
+  }
+  async function reconcileSync() {
+    if (!syncHandle) return;
+    const file = await syncHandle.getFile();
+    const text = await file.text();
+    if (!text.trim()) { await writeSyncFile(); syncStatus = '同步文件是空的，已写入本机数据'; return; }
+    const data = JSON.parse(text);
+    const ft = data.updatedAt || '';
+    const lt = state.updatedAt || '';
+    if (ft > lt) {
+      state = data;
+      normalize(state);
+      ensure();
+      localStorage.setItem(KEY, JSON.stringify(state));
+      syncStatus = '已采用同步文件中较新的数据';
+    } else if (lt > ft) {
+      await writeSyncFile();
+      syncStatus = '已把本机较新数据写入同步文件';
+    } else syncStatus = '同步文件已是最新';
+  }
+  async function bindSync(saveAs) {
+    try {
+      if (saveAs) {
+        if (!window.showSaveFilePicker) { toast('这个浏览器不能绑定本地文件，请改用下载 JSON'); return; }
+        syncHandle = await window.showSaveFilePicker({ suggestedName: '好车主卡券.json', types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+      } else {
+        if (!window.showOpenFilePicker) { toast('这个浏览器不能绑定本地文件，请改用下载 JSON'); return; }
+        const handles = await window.showOpenFilePicker({ multiple: false, types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+        syncHandle = handles[0];
+      }
+      await idbSet('handle', syncHandle);
+      if (saveAs) { await writeSyncFile(); syncStatus = '已绑定新的同步文件'; }
+      else await reconcileSync();
+      render();
+      toast(syncStatus);
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+      toast(err.message || '没能绑定同步文件');
+    }
+  }
+  async function initSync() {
+    try { syncHandle = await idbGet('handle'); } catch (e) { syncHandle = null; }
+    if (!syncHandle) return;
+    try {
+      const perm = await syncHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') { syncStatus = '同步文件需要重新授权，请到数据页点「立即对齐」'; render(); return; }
+      await reconcileSync();
+      render();
+    } catch (e) {
+      syncStatus = '读同步文件失败，本机数据仍在';
+      render();
+    }
+  }
+
+  function selfTest() {
+    const errs = [];
+    function eq(a, b, m) { if (a !== b) errs.push(m + ' => ' + JSON.stringify(a)); }
+    eq(addMonths('2026-01-15', 1), '2026-02-15', 'm1');
+    eq(addMonths('2026-01-31', 1), '2026-02-28', 'm2');
+    eq(addMonths('2024-01-31', 1), '2024-02-29', 'leap');
+    eq(addDays(addMonths('2026-01-15', 1), -1), '2026-02-14', 'exp');
+    const g = blankGift('券', 4, 0, '2026-01-15');
+    eq(issueOf(g, 1), '2026-01-15', 'i1');
+    eq(issueOf(g, 3), '2026-03-15', 'i3');
+    eq(expireOf({ validMonths: 1 }, g, 1), '2026-02-14', 'e1');
+    eq(expireOf({ validMonths: 12 }, g, 1), '2026-02-14', 'e1-month');
+    eq(cardStatus({ validMonths: 12 }, blankGift('券', 2, 0, '2026-10-11', 1, 10), 1, '2026-11-27'), 'expired', 'past-month');
+    eq(remainCash({ validMonths: 12 }, blankGift('券', 2, 0, '2026-10-11', 1, 10), '2026-11-27'), 10, 'remain-open');
+    eq(profitRateLabel(100, 135), '(润:35%)', 'rate');
+    eq(profitRateLabel(380, 576), '(润:52%)', 'rate-round');
+    eq(profitRateLabel(100, 80), '(润:-20%)', 'rate-down');
+    eq(profitRateLabel(0, 50), '(润:—)', 'rate-zero');
+    const packed = packSyncCode({ id: 'gid', token: 'tok+en/=' });
+    const unpacked = parseSyncCode(packed);
+    eq(unpacked.id, 'gid', 'cloud-id');
+    eq(unpacked.token, 'tok+en/=', 'cloud-token');
+    eq(pickCloud({ updatedAt: '2026-01-01T00:00:00.000Z' }, { updatedAt: '2026-02-01T00:00:00.000Z', projects: [{}] }, true), 'pull', 'cloud-pull');
+    eq(pickCloud({ updatedAt: '2026-03-01T00:00:00.000Z' }, { updatedAt: '2026-02-01T00:00:00.000Z', projects: [{}] }, true), 'push', 'cloud-push');
+    eq(pickCloud({ updatedAt: '2026-03-01T00:00:00.000Z' }, { updatedAt: '2026-02-01T00:00:00.000Z', projects: [{}] }, false), 'pull', 'cloud-fresh');
+    g.expireOv['1'] = '2026-03-01';
+    eq(expireOf({ validMonths: 1 }, g, 1), '2026-03-01', 'eov');
+    delete g.expireOv['1'];
+    g.issueOv['2'] = '2026-02-20';
+    eq(issueOf(g, 2), '2026-02-20', 'iov');
+    eq(expireOf({ validMonths: 1 }, g, 2), '2026-03-19', 'e2');
+    const g2 = blankGift('券', 12, 0, '2020-01-15');
+    useCurrent(g2, '2026-11-26');
+    eq(g2.used, 1, 'used');
+    eq(g2.anchor, '2026-11-26', 'jump');
+    eq(issueOf(g2, 2), '2026-11-26', 'next');
+    eq(g2.log[0].issue, '2020-01-15', 'log');
+    undoLast(g2);
+    eq(g2.used, 0, 'undo');
+    eq(g2.anchor, '2020-01-15', 'undo-a');
+    const g3 = blankGift('券', 3, 0, '2026-01-15');
+    useCurrent(g3, '2026-01-20');
+    eq(g3.anchor, '2026-02-15', 'ontime');
+    eq(cardStatus({ validMonths: 1 }, blankGift('券', 2, 0, '2026-10-27'), 1, '2026-11-26'), 'today', 'today');
+    eq(cardStatus({ validMonths: 1 }, blankGift('券', 2, 0, '2026-10-30'), 1, '2026-11-26'), 'soon', 'soon');
+    eq(cardStatus({ validMonths: 1 }, blankGift('券', 2, 0, '2026-08-01'), 1, '2026-11-26'), 'expired', 'expired');
+    eq(cardStatus({ validMonths: 1 }, blankGift('券', 2, 0, '2026-11-27'), 1, '2026-11-26'), 'wait', 'wait');
+    const gm = blankGift('券', 4, 0, '2026-01-15', 2, 10);
+    eq(issueOf(gm, 1), '2026-01-15', 'pm1');
+    eq(issueOf(gm, 2), '2026-01-15', 'pm2');
+    eq(issueOf(gm, 3), '2026-02-15', 'pm3');
+    useCurrent(gm, '2026-01-20');
+    eq(gm.anchor, '2026-01-15', 'pm-hold');
+    eq(issueOf(gm, 2), '2026-01-15', 'pm-hold-2');
+    eq(issueOf(gm, 3), '2026-02-15', 'pm-hold-3');
+    useCurrent(gm, '2026-01-20');
+    eq(gm.anchor, '2026-02-15', 'pm-next');
+    const cashable = { validMonths: 1 };
+    const g4 = blankGift('券', 3, 0, '2026-11-26', 1, 10);
+    eq(remainCount(cashable, g4, '2026-11-26'), 3, 'rem3');
+    useCurrent(g4, '2026-11-26');
+    eq(remainCount(cashable, g4, '2026-11-26'), 2, 'rem2');
+    eq(remainCash(cashable, g4, '2026-11-26'), 20, 'cash20');
+    const g5 = blankGift('券', 1, 0, '2026-01-01', 1, 8);
+    eq(remainCount({ validMonths: 1 }, g5, '2026-11-26'), 0, 'rem0');
+    eq(projectMoney({ cost: 30, cash: 80, series: [g4] }, '2026-11-26').profit, 50, 'profit');
+    eq(projectMoney({ cost: 30, cash: 80, copies: 3, series: [] }).profit, 150, 'profit-x');
+    eq(projectMoney({ cost: 30, cash: 80, copies: 3, series: [] }).spent, 90, 'spent-x');
+    const split = { validMonths: 1, copies: 2, cost: 30, cash: 80, accountIds: ['a', 'b'], accountCopies: { a: 2, b: 1 }, series: [] };
+    const gsplit = blankGift('券', 2, 0, '2026-01-15', 1, 0);
+    split.series = [gsplit];
+    trimGift(split, gsplit);
+    eq(actualQty(split, gsplit, 'a'), 4, 'copy-a');
+    eq(actualQty(split, gsplit, 'b'), 2, 'copy-b');
+    useCurrent(gsplit.holders.a, '2026-01-20', viewOf(split, 'a'));
+    eq(gsplit.holders.a.used, 1, 'used-a');
+    eq(gsplit.holders.b.used, 0, 'used-b');
+    eq(projectMoney(split, '2026-01-20', true).profit, 150, 'profit-accounts');
+    eq(projectMoney(split, '2026-01-20', true).spent, 90, 'spent-accounts');
+    eq(projectMoney({ cost: 30, cash: 80, series: [g4] }, '2026-11-26').remain, 20, 'remain');
+    const pack = { validMonths: 1, copies: 3 };
+    const multi = blankGift('券', 4, 0, '2026-01-15', 1, 10);
+    eq(actualQty(pack, multi), 12, 'aq');
+    eq(actualStep(pack, multi), 3, 'as');
+    eq(issueOf(multi, 1, pack), '2026-01-15', 'mq1');
+    eq(issueOf(multi, 3, pack), '2026-01-15', 'mq3');
+    eq(issueOf(multi, 4, pack), '2026-02-15', 'mq4');
+    useCurrent(multi, '2026-01-20', pack);
+    useCurrent(multi, '2026-01-20', pack);
+    eq(multi.anchor, '2026-01-15', 'mq-hold');
+    useCurrent(multi, '2026-01-20', pack);
+    eq(multi.anchor, '2026-02-15', 'mq-next');
+    eq(remainCount(pack, multi, '2026-01-20'), 9, 'mq-rem');
+    const matrix = [
+      ['账号', '名称', '礼包1', '礼包数量', '礼包1已用', '礼包1当前发放', '礼包2', '礼包数量', '礼包2已用', '礼包2当前发放', '首次发放时间', '有效期月', '备注'],
+      ['我的好车主', '平安行', '100-20话费券', '12', '2', '2026-03-15', '药诊卡', '1', '0', '', '2026-01-15', '1', '测试']
+    ];
+    const parsed = parseTable(matrix);
+    eq(parsed.kind, 'policy', 'kind');
+    eq(parsed.records[0].gifts.length, 2, 'gifts');
+    eq(parsed.records[0].gifts[0].used, 2, 'u');
+    eq(parsed.records[0].gifts[0].anchor, '2026-03-15', 'anchor');
+    eq(parsed.records[0].gifts[1].anchor, '2026-01-15', 'anchor2');
+    eq(normalizeDate('2026年1月5日'), '2026-01-05', 'cn');
+    eq(normalizeDate('2026/1/5'), '2026-01-05', 'slash');
+    const serial = String(Math.round((Date.UTC(2026, 0, 15) - Date.UTC(1899, 11, 30)) / 86400000));
+    eq(normalizeDate(serial), '2026-01-15', 'serial');
+    const rows = buildPolicyRows([{
+      accountId: 'a1', name: '平安行', note: 'n', firstIssue: '2026-01-15', validMonths: 1, cost: 50, cash: 80,
+      series: [blankGift('话费券', 12, 2, '2026-03-15', 2, 15), blankGift('药诊卡', 1, 0, '2026-01-15', 1, 9)]
+    }], [{ id: 'a1', name: '我的好车主' }]);
+    const back = parseTable(rows);
+    eq(back.records[0].gifts[0].used, 2, 'rt');
+    eq(back.records[0].gifts[1].name, '药诊卡', 'rt2');
+    eq(back.records[0].cost, 50, 'cost');
+    eq(back.records[0].cash, 80, 'cash');
+    eq(back.records[0].gifts[0].perMonth, 2, 'pm-imp');
+    eq(back.records[0].gifts[0].price, 15, 'price');
+    eq(back.records[0].gifts[1].price, 9, 'price2');
+    return errs;
+  }
+
+  window.HCZ = { addMonths: addMonths, expireOf: expireOf, issueOf: issueOf, cardStatus: cardStatus, parseTable: parseTable, buildPolicyRows: buildPolicyRows, buildDetailRows: buildDetailRows, sheetXml: sheetXml, parseSheetXml: parseSheetXml, makeXlsx: makeXlsx, readXlsxAll: readXlsxAll, state: function () { return state; } };
+  async function initCloud() {
+    if (!cloudCfg()) return;
+    try { await reconcileCloud(); }
+    catch (e) { setCloudStatus(cloudErr(e)); render(); }
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible' || !cloudCfg()) return;
+    if (location.hash.indexOf('#/edit/') === 0) return;
+    reconcileCloud().catch(function (e) { setCloudStatus(cloudErr(e)); });
+  });
+
+  load();
+  if (cloudCfg()) cloudStatus = '正在读取云端';
+  testErrs = selfTest();
+  window.HCZ.errors = testErrs;
+  if (testErrs.length) console.error(testErrs);
+  window.addEventListener('hashchange', render);
+  render();
+  initSync();
+  initCloud();
+})();
+</script>
+</body>
+</html>
